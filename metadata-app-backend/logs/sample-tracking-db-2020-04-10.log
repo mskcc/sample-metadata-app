@@ -1,0 +1,9 @@
+2020-04-10 12:25:13,053  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5001/ (Press CTRL+C to quit)
+2020-04-10 12:25:13,054  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-10 12:25:13,624  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-10 12:25:13,632  INFO       MainProcess  werkzeug  * Debugger PIN: 112-002-602
+2020-04-10 12:27:29,045  INFO       MainProcess  werkzeug 127.0.0.1 - - [10/Apr/2020 12:27:29] "GET /get_matadata?timestamp= HTTP/1.1" 200 -
+2020-04-10 12:27:29,863  INFO       MainProcess  werkzeug 127.0.0.1 - - [10/Apr/2020 12:27:29] "GET /favicon.ico HTTP/1.1" 404 -
+2020-04-10 12:34:48,145  INFO       MainProcess  werkzeug 127.0.0.1 - - [10/Apr/2020 12:34:48] "GET /get_matadata?timestamp= HTTP/1.1" 200 -
+2020-04-10 12:54:04,589  INFO       MainProcess  werkzeug 127.0.0.1 - - [10/Apr/2020 12:54:04] "GET /get_matadata?timestamp= HTTP/1.1" 200 -
+2020-04-10 12:59:22,287  INFO       MainProcess  werkzeug 127.0.0.1 - - [10/Apr/2020 12:59:22] "GET /get_matadata?timestamp= HTTP/1.1" 200 -

@@ -1,0 +1,26 @@
+2020-03-30 20:32:35,438  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2020-03-30 20:32:35,439  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-30 20:32:36,825  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-30 20:32:36,834  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-30 20:33:00,473  INFO       MainProcess  root testing
+2020-03-30 20:33:00,506  INFO       MainProcess  werkzeug 127.0.0.1 - - [30/Mar/2020 20:33:00] "[37mGET / HTTP/1.1[0m" 200 -
+2020-03-30 20:33:00,740  INFO       MainProcess  werkzeug 127.0.0.1 - - [30/Mar/2020 20:33:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2020-03-31 10:54:00,607  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:00] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 10:54:00,629  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:00] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-03-31 10:54:51,485  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:51] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 10:54:51,498  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:51] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-03-31 10:54:51,788  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:51] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-03-31 10:54:57,895  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:57] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 10:54:57,905  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:54:57] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-03-31 10:55:52,395  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 10:55:52,500  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 10:57:27,515  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 10:58:02,277  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 10:58:27,470  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 11:00:57,897  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 11:14:54,289  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 22:57:22,755  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 22:58:34,185  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 22:58:47,026  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 22:59:46,748  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 23:01:11,268  INFO       MainProcess  werkzeug  * Restarting with stat

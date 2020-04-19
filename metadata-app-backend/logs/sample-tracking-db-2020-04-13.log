@@ -1,0 +1,83 @@
+2020-04-13 12:35:36,819  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5001/ (Press CTRL+C to quit)
+2020-04-13 12:35:36,820  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:35:37,363  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:35:37,373  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:45:01,070  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:45:01,219  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:45:01,938  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:45:01,943  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:46:03,112  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:46:03,183  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:46:03,791  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:46:03,800  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:46:08,540  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:46:08] "GET /get_matadata?timestamp=1583799288000 HTTP/1.1" 200 -
+2020-04-13 12:47:51,953  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:47:52,054  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:47:52,671  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:47:52,676  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:47:57,064  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?timestamp=1583799288000 HTTP/1.1" 500 -
+2020-04-13 12:47:57,105  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2020-04-13 12:47:57,120  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2020-04-13 12:47:57,121  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+2020-04-13 12:47:57,320  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2020-04-13 12:47:57,321  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
+2020-04-13 12:47:57,389  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:47:57] "GET /get_matadata?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2020-04-13 12:48:42,594  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:48:42,666  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:48:43,243  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:48:43,248  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:48:47,450  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:48:47] "GET /get_matadata?timestamp=1583799288000 HTTP/1.1" 200 -
+2020-04-13 12:49:07,741  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:49:07,822  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:49:08,371  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:49:08,377  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:49:21,673  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:49:21,816  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:49:22,522  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:49:22,533  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:49:35,454  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:49:35] "GET /get_metadata?timestamp=1583799288000 HTTP/1.1" 200 -
+2020-04-13 12:49:41,132  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:49:41] "GET /get_metadata?timestamp=1583799288000 HTTP/1.1" 200 -
+2020-04-13 12:49:51,085  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:49:51,187  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:49:51,823  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:49:51,829  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:49:55,443  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:49:55] "GET /get_metadata?timestamp=1583799288000 HTTP/1.1" 200 -
+2020-04-13 12:50:26,484  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:50:26,589  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:50:27,194  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:50:27,199  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:50:29,385  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?timestamp=1583799288000 HTTP/1.1" 500 -
+2020-04-13 12:50:29,414  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2020-04-13 12:50:29,421  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+2020-04-13 12:50:29,424  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2020-04-13 12:50:29,497  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2020-04-13 12:50:29,506  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
+2020-04-13 12:50:29,532  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:50:29] "GET /get_metadata?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2020-04-13 12:51:17,184  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:51:17,262  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:51:17,868  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:51:17,875  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 12:51:24,273  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:51:24] "GET /get_metadata?timestamp=1583799288000 HTTP/1.1" 500 -
+2020-04-13 12:51:24,306  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:51:24] "GET /get_metadata?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2020-04-13 12:51:24,309  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:51:24] "GET /get_metadata?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+2020-04-13 12:51:24,311  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:51:24] "GET /get_metadata?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2020-04-13 12:51:24,377  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:51:24] "GET /get_metadata?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2020-04-13 12:51:24,383  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 12:51:24] "GET /get_metadata?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
+2020-04-13 12:54:22,386  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-13 12:54:22,469  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 12:54:23,207  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 12:54:23,212  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 13:20:30,850  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 13:20:30] "GET /get_metadata?timestamp=1583799288000 HTTP/1.1" 200 -
+2020-04-13 14:19:19,902  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 14:19:19] "GET /get_metadata?timestamp=1584836088000 HTTP/1.1" 200 -
+2020-04-13 14:20:07,432  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 14:20:07] "GET /get_metadata?timestamp=1584663288000 HTTP/1.1" 200 -
+2020-04-13 14:30:18,239  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 14:30:18] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -
+2020-04-13 14:48:57,996  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 14:48:57] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -
+2020-04-13 15:04:45,251  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 15:04:45] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -
+2020-04-13 15:26:29,418  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5001/ (Press CTRL+C to quit)
+2020-04-13 15:26:29,419  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-13 15:26:29,930  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-13 15:26:29,940  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-13 15:26:47,128  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 15:26:47] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -
+2020-04-13 15:30:27,328  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 15:30:27] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -
+2020-04-13 15:31:55,809  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 15:31:55] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -
+2020-04-13 16:18:23,816  INFO       MainProcess  werkzeug 127.0.0.1 - - [13/Apr/2020 16:18:23] "GET /get_metadata?timestamp=1584576888000 HTTP/1.1" 200 -

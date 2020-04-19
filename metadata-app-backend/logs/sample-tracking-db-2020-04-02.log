@@ -1,0 +1,40 @@
+2020-04-02 14:42:12,213  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2020-04-02 14:42:12,215  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 14:42:12,736  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 14:42:12,745  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 14:47:26,734  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-02 14:47:26,924  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 14:48:06,299  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2020-04-02 14:48:06,300  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 14:48:06,936  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 14:48:06,945  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 22:24:21,807  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-02 22:24:21,988  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 22:24:23,181  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 22:24:23,190  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 22:25:11,890  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2020-04-02 22:25:11,893  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 22:25:12,528  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 22:25:12,535  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 22:26:02,481  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 22:26:02] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 22:27:50,521  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-02 22:27:50,631  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 22:27:52,248  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 22:27:52,257  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 22:28:01,049  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 22:28:01] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 22:58:49,478  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 22:58:49] "[37mGET /get_matadata?timestamp=07973_EM HTTP/1.1[0m" 200 -
+2020-04-02 22:59:28,258  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-02 22:59:28,384  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 22:59:30,446  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 22:59:30,452  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 22:59:38,342  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 22:59:38] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 23:00:41,944  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-02 23:00:42,062  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-02 23:00:42,618  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-04-02 23:00:42,623  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-04-02 23:00:50,281  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 23:00:50] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 23:01:58,836  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 23:01:58] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 23:02:56,023  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 23:02:56] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 23:04:09,433  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 23:04:09] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 23:06:18,774  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 23:06:18] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -
+2020-04-02 23:07:31,910  INFO       MainProcess  werkzeug 127.0.0.1 - - [02/Apr/2020 23:07:31] "[37mGET /get_matadata?timestamp= HTTP/1.1[0m" 200 -

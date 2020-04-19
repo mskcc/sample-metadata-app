@@ -1,0 +1,100 @@
+
+Tables and DB Setup
+    - Columns to show
+        - Pipeline, confirmation?
+        - PM? 
+
+    - Patient Table
+        - CMO Patient 
+        - Sex
+        - Species
+        - MRN and CMO Patient ID should have 1:1 relationship
+     
+    - Sample Table
+        - CMO Sample Class
+        - Tissue Location
+        - SpecimenType
+        - TumorType
+        - Preservation
+        - Conservation
+
+    - FastQ
+        - one row per file? 
+
+    - Assay Table
+        - Data Ownership (PI default)    
+
+
+    - Are non-humans patients? 
+    
+
+
+
+Tech Stack
+    - Flask
+    - MySQL
+    - React (material, redux?, session tracking)
+
+Deliverables:
+- Project status, QC status
+
+1) 
+
+- Investigate status project tracker plugin
+- Endpoint with optional timestamp parm
+    - Upload/Dump (feed the DB with historical samples, patient info <2018)
+    - Pull from LIMS 
+    - logic to determine performed assay and parent sample, parent source igo id, parent requestid
+- Database protoype 
+    - Patient
+    - Sample level table
+    - Assay (sample can have multiple assays)
+    - FastQ (to capture external, internal lives in ngs stats)
+- Reuse SampleTracker 
+    - Flask (implement API Response)
+    - Columns by user role
+    - React/Handsontable (material)
+- Viewing only, editing later
+- Double check columns with stakeholders (pipelines after we have PM columns)
+
+- What is an external sample? And how can we link it if it's the same patient? How can we mark it?
+
+
+2) 
+
+- Reimplement Corrected CMO ID (using original logic doc)
+- Splunk 
+- Query by Columns + any additional boolean logic, wildcards, search across all columns
+    - which columns would landing page search box look at? 
+- Statuses (QC, Project...)
+- Export
+- CRDB lookup to translate anonymized ID's to MRN (limits PHI other apps have to supply)
+
+
+3)
+- Editing
+- Cohort logic (check with Voyager)
+- replace DMP
+- replace SampleLevelCMOInfo tracker:
+    - How would we get patient information? 
+        - external source
+        - how does promote know SampleLevelCMOInfo to attach to?
+    => Discuss again when LIMS most recent pull is implemented and we're ready to push promote     
+- Pipeline ability to publish post-analysis results (endpoint, or manual)
+
+To be defined:
+
+
+- Sample Promote will push or LIMS endpoint to get recent promoted (daily?)
+- Upload (for IGO-external samples)
+- Maybe at some point, use it to correct LIMS, LIMS changes won't update this
+
+- Later on:
+    - extend sources, pull from ngs stats?
+
+Sources for pipeline kickoff:
+    - LIMS (DNA input, or status)
+    - Meta-DB (to be added to current pipeline endpoint)
+    - ngs-stats (fastq)
+
+

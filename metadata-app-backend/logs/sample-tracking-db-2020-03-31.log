@@ -1,0 +1,134 @@
+2020-03-31 10:55:53,643  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 10:55:53,649  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 10:57:27,395  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 10:57:28,589  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 10:57:28,595  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 10:57:32,593  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:57:32] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 10:57:32,609  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:57:32] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-03-31 10:58:02,206  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 10:58:02,976  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 10:58:02,982  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 10:58:27,390  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 10:58:28,177  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 10:58:28,182  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 10:58:31,178  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:58:31] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 10:58:31,181  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:58:31] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 10:59:20,306  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:59:20] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 10:59:20,310  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 10:59:20] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 11:00:57,814  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 11:00:58,421  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 11:00:58,426  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 11:02:40,470  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 11:02:40] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 11:02:40,780  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 11:02:40] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 11:14:54,135  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 11:14:55,236  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 11:14:55,244  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 22:56:43,319  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:56:43] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 22:56:43,658  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:56:43] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 22:57:22,662  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 22:57:23,776  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 22:57:23,784  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 22:57:28,878  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:57:28] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 22:57:29,147  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:57:29] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 22:58:34,089  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 22:58:35,696  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 22:58:35,704  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 22:58:46,929  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 22:58:47,568  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 22:58:47,573  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 22:58:55,288  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:58:55] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 22:58:55,451  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:58:55] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 22:59:00,355  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 22:59:00] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 22:59:46,627  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 22:59:47,711  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 22:59:47,718  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:01:11,172  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 23:01:11,957  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 23:01:11,964  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:01:17,090  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:01:17] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:01:17,356  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:01:17] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:01:23,039  INFO       MainProcess  werkzeug  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2020-03-31 23:01:23,039  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 23:01:23,559  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 23:01:23,564  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:01:51,960  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:01:51] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:01:55,211  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:01:55,318  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:01:55] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:03:55,270  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 23:03:55,373  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 23:03:56,002  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 23:03:56,007  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:04:52,888  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:04:52] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:04:53,065  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:04:53,094  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:04:53] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:14:45,344  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 23:14:45,462  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 23:14:47,546  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 23:14:47,571  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:17:19,221  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 23:17:19,304  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 23:17:19,868  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 23:17:19,874  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:40:10,955  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:40:10] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:40:11,368  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:40:11,413  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:40:11] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:40:35,166  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-03-31 23:40:35,263  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-03-31 23:40:36,354  WARNING    MainProcess  werkzeug  * Debugger is active!
+2020-03-31 23:40:36,362  INFO       MainProcess  werkzeug  * Debugger PIN: 260-696-548
+2020-03-31 23:40:42,923  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:40:42] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:40:43,094  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:40:43,142  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:40:43] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:43:41,291  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:43:41] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:43:41,465  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:43:41,492  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:43:41] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:44:21,626  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:44:21] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:44:21,802  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:44:21,817  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:44:21] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:45:07,349  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:45:07] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:45:07,512  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:45:07,558  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:45:07] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:48:13,381  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:48:13] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:48:13,542  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:48:13,582  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:48:13] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:48:15,572  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:48:15,648  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:48:15] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:49:33,641  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:49:33] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:49:33,831  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:49:33,913  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:49:33] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-03-31 23:51:15,386  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:51:15] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-03-31 23:51:16,078  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-03-31 23:51:16,102  INFO       MainProcess  werkzeug 127.0.0.1 - - [31/Mar/2020 23:51:16] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 00:08:03,007  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:08:03] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 00:08:03,150  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 00:08:03,234  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:08:03] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 00:08:05,988  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 00:08:06,087  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:08:06] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 00:08:08,088  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:08:08] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 00:08:08,223  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 00:08:08,228  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:08:08] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 00:09:45,716  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:09:45] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 00:09:46,078  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 00:09:46,144  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:09:46] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 00:57:57,320  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:57:57] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 00:57:57,396  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 00:57:57] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-04-01 01:00:18,061  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:00:18] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 01:00:18,084  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:00:18] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-04-01 01:00:19,777  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:00:19] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-04-01 01:00:21,733  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:00:21] "[35m[1mPOST /login HTTP/1.1[0m" 500 -
+2020-04-01 01:02:02,911  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:02:02] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 01:02:03,114  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 01:02:03,147  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:02:03] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 01:03:00,924  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:03:00] "[37mOPTIONS /login HTTP/1.1[0m" 200 -
+2020-04-01 01:03:01,097  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 01:03:01,181  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:03:01] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 01:03:04,169  INFO       MainProcess  root Successfully authenticated and logged sharmaa1 into the app with role admin.
+2020-04-01 01:03:04,195  INFO       MainProcess  werkzeug 127.0.0.1 - - [01/Apr/2020 01:03:04] "[37mPOST /login HTTP/1.1[0m" 200 -
+2020-04-01 01:09:16,522  INFO       MainProcess  werkzeug  * Detected change in '/Users/sharmaa1/Desktop/My_Scripts/sample-metadata-app/metadata-app-backend/app/app.py', reloading
+2020-04-01 01:09:16,679  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-01 11:01:47,202  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-01 11:11:37,135  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-01 11:25:17,630  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-01 11:26:50,439  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-01 13:01:40,571  INFO       MainProcess  werkzeug  * Restarting with stat
+2020-04-01 13:49:16,179  INFO       MainProcess  werkzeug  * Restarting with stat
