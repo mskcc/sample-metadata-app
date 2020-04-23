@@ -1,10 +1,15 @@
 import re
 
+import cx_Oracle
+
+
 def get_user_title(result):
     p = re.search("title(.*?)\]\,", str(result))
     title = re.sub(r'title\': \[b\'', "", p[0])
     title = re.sub(r'\']\,', "", title)
     return title
+
+
 # returns user's full_name
 def get_user_fullname(result):
     p = re.search("displayName(.*?)\]\,", str(result))
@@ -12,6 +17,8 @@ def get_user_fullname(result):
     full_name = re.sub(r'\/.*', "", full_name)
     name = full_name.split(", ")[1] + " " + full_name.split(", ")[0]
     return name
+
+
 # checks whether user is in GRP_SKI_Haystack_NetIQ
 # returns ezGroups the user is a part of
 def get_user_group(result):
@@ -20,3 +27,11 @@ def get_user_group(result):
     groups = re.sub('CN=Users', '', str(result))
     # returns all matching groups
     return p.findall(groups)
+
+
+def get_crdb_connection():
+    un = 'voyager'
+    pw = 'blnenqmap'
+    db = 'plcrdbd2:1526/CRDB_P'
+    conn = cx_Oracle.connect(un, pw, db)
+    return conn

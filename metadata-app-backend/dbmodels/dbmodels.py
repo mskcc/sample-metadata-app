@@ -10,19 +10,25 @@ make_versioned(user_cls=None)
 
 class Patient(db.Model):
     __versioned__ = {}
-    id = db.Column(db.Integer, primary_key=True)
-    mrn = db.Column(db.String(300), unique=True, nullable=False)
-    cmo_patientid = db.Column(db.String(300), nullable=False)
-    cmo_sampleid = db.Column(db.String(300))
+    __tablename__= 'patient'
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    mrn = db.Column(db.String(300), unique=True, nullable=False, index=True)
+    cmo_patient_id = db.Column(db.String(300), nullable=False)
+    cmo_sample_id = db.Column(db.String(300))
+    date_created = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_by = db.Column(db.String(300), default="api")
+    date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_by = db.Column(db.String(300), default="api")
     samples = db.relationship('Sample', backref='patient', lazy='joined')
 
 
 class Sample(db.Model):
     __versioned__ = {}
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'sample'
+    id = db.Column(db.Integer, primary_key=True, index=True)
     mrn = db.Column(db.String(10), db.ForeignKey('patient.mrn'), index=True)
-    igoid = db.Column(db.String(300), unique=True, nullable=True)
-    investigator_sampleid = db.Column(db.String(300))
+    igo_id = db.Column(db.String(300), unique=True, nullable=True)
+    investigator_sample_id = db.Column(db.String(300))
     sample_type = db.Column(db.String(300))
     species = db.Column(db.String(300), nullable=False)
     preservation = db.Column(db.String(300))
@@ -31,52 +37,42 @@ class Sample(db.Model):
     sample_origin = db.Column(db.String(300))
     specimen_type = db.Column(db.String(300))
     gender = db.Column(db.String(300))
-    parent_tumortype = db.Column(db.String(300))
-    tumortype = db.Column(db.String(300))
+    parent_tumor_type = db.Column(db.String(300))
+    tumor_type = db.Column(db.String(300))
     tissue_location = db.Column(db.String(300))
     ancestor_sample = db.Column(db.String(300))
-    donotuse = db.Column(db.Integer)
-    assays = db.relationship('Assay', backref='sample', lazy=True, foreign_keys='Assay.idsample')
-    fastq_data = db.relationship('Data', backref='sample', lazy=True, foreign_keys='SampleData.idsample')
+    sample_status = db.Column(db.String(300))
+    do_not_use = db.Column(db.Integer)
+    date_created = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_by = db.Column(db.String(300), default="api")
+    date_updated=db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_by=db.Column(db.String(300), default="api")
+    assays = db.relationship('Assay', backref='sample', lazy=True)
+    fastq_data = db.relationship('Data', backref='sample', lazy=True)
 
 class Assay(db.Model):
     __versioned__ = {}
-    id = db.Column(db.Integer, primary_key=True, unique=True)
-    idsample = db.Column(db.Integer, db.ForeignKey('sample.id'))
+    __tablename__ = 'assay'
+    id = db.Column(db.Integer, primary_key=True, unique=True, index=True)
+    id_sample = db.Column(db.Integer, db.ForeignKey('sample.id'), index=True)
     recipe = db.Column(db.String(300))
-    baitset = db.Column(db.String(300))
-    igoid = db.Column(db.String(300), db.ForeignKey('sample.igoid'))
+    bait_set = db.Column(db.String(300))
+    date_created = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_by = db.Column(db.String(300), default="api")
+    date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_by = db.Column(db.String(300), default="api")
 
 
 class Data(db.Model):
     __versioned__ = {}
-    id = db.Column(db.Integer, primary_key=True, unique=True)
-    idsample = db.Column(db.Integer, db.ForeignKey('sample.id'))
+    __tablename__ = 'data'
+    id = db.Column(db.Integer, primary_key=True, unique=True, index=True)
+    id_sample = db.Column(db.Integer, db.ForeignKey('sample.id'), index=True)
     fastq_path = db.Column(db.String(300))
-    igoid = db.Column(db.String(300), db.ForeignKey('sample.igoid'))
-
-
-class Sample(db.Model):
-    __versioned__ = {}
-    id = db.Column(db.Integer, unique=True)
-    mrn = db.Column(db.String(300), db.ForeignKey('patient.mrn'), unique=True, primary_key=True)
-    igoid = db.Column(db.String(300), unique=True, nullable=True)
-    investigator_sampleid = db.Column(db.String(300))
-    sample_type = db.Column(db.String(300))
-    species = db.Column(db.String(300), nullable=False)
-    preservation = db.Column(db.String(300))
-    tumor_normal = db.Column(db.String(300))
-    tissue_source = db.Column(db.String(300))
-    sample_origin = db.Column(db.String(300))
-    specimen_type = db.Column(db.String(300))
-    gender = db.Column(db.String(300))
-    parent_tumortype = db.Column(db.String(300))
-    tumortype = db.Column(db.String(300))
-    tissue_location = db.Column(db.String(300))
-    ancestor_sample = db.Column(db.String(300))
-    donotuse = db.Column(db.Integer)
-    assays = db.relationship('Assay', backref='sample', lazy=True, foreign_keys='Assay.idsample')
-    fastq_data = db.relationship('SampleData', backref='sample', lazy=True, foreign_keys='SampleData.idsample')
+    date_created = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_by = db.Column(db.String(300), default="api")
+    date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_by = db.Column(db.String(300), default="api")
 
 
 class AppLog(db.Model):
@@ -97,7 +93,6 @@ class AppLog(db.Model):
     def log(self, db=db):
         db.session.add(self)
         db.session.commit()
-        db.session.flush()
 
     @staticmethod
     def info(message, user):
@@ -108,7 +103,6 @@ class AppLog(db.Model):
         applog.message = message
         db.session.add(applog)
         db.session.commit()
-        db.session.flush()
 
     @staticmethod
     def warning(message, user):
@@ -119,7 +113,6 @@ class AppLog(db.Model):
         applog.message = message
         db.session.add(applog)
         db.session.commit()
-        db.session.flush()
 
     @staticmethod
     def error(message, user):
@@ -130,7 +123,6 @@ class AppLog(db.Model):
         applog.message = message
         db.session.add(applog)
         db.session.commit()
-        db.session.flush()
 
 
 class SampleData:
