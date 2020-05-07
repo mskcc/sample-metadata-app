@@ -1,6 +1,8 @@
+import re
 import traceback
 
 from app import *
+from utils.utils import get_column_configs, get_sample_objects, get_fastq_data
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -9,14 +11,17 @@ def index():
     This method is here only to test at times if the app is working correctly.
     :return:
     '''
-    log_entry = LOG.info("testing")
     AppLog.info(message="Testing the app.", user="api")
-    # samples = db.session.query(Sample).filter(sa.not_(Sample.sample_status.like('%Failed%')), sa.not_(Sample.sampleid == '')).all()
-    # samples = db.session.query(Sample).filter(sa.not_(Sample.sample_status.like('%Failed%'))).all()
-    # samples = db.session.query(Sample).all()
-    # return jsonify(totalrecords = len(samples))
     return jsonify(columnHeaders=gridconfigs.clinicalColHeaders, columns=gridconfigs.clinicalColumns,
                    settings=gridconfigs.settings), 200
+
+
+def get_lims_recipes():
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Recipe",
+              auth=(USER, PASSW), verify=False)
+    data = r.content.decode("utf-8", "strict")
+    print(json.loads(data))
+    return json.loads(data)
 
 
 def get_ldap_connection():
@@ -60,6 +65,7 @@ def login():
             AppLog.info(message="Successfully authenticated and logged into the app.", user=username)
             access_token = create_access_token(identity=username)
             refresh_token = create_refresh_token(identity=username)
+            recipe_list = get_lims_recipes()
             response = make_response(
                 jsonify(
                     valid=True,
@@ -69,6 +75,7 @@ def login():
                     user_fullname=user_fullname,
                     access_token=access_token,
                     refresh_token=refresh_token,
+                    recipes = recipe_list,
                     message="Login Successful"
                 ),
                 200, None)
@@ -141,6 +148,7 @@ def logout():
                         user_fullname=None,
                         access_token=None,
                         refresh_token=None,
+                        recipes=None,
                         message="Successfully logged out user {}".format(current_user)),
                 200, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
@@ -157,33 +165,6 @@ def logout():
             200, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
-
-
-@app.route('/search', methods=['POST'])
-@jwt_required
-def search():
-    try:
-        if request.method == "POST":
-            search_data = request.get_json(silent=True)
-            current_user = get_jwt_identity()
-            response = make_response(
-                jsonify(success=True,
-                        data="",
-                        message=""
-                        ),
-                200, None)
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            return response
-    except Exception as e:
-        response = make_response(
-            jsonify(success=False,
-                    data="",
-                    message="Search Error: {}".format(repr(e))
-                    ),
-            200, None)
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-        return e
 
 
 @app.route("/get_metadata", methods=['GET', 'POST'])
@@ -236,7 +217,7 @@ def get_mrn(connection, cmo_id):
     :returns MRN, DMP_ID
     """
     sql = """ 
-          SELECT pt_mrn, dmp_id FROM crdb_cmo_dmp_map
+          SELECT pt_mrn, dmp_id FROM crdb_cmo_loj_dmp_map
           WHERE cmo_id = :p_cmo_id
           """
     # Allocate Cursor
@@ -277,7 +258,7 @@ def save_to_db(data):
     """
     try:
         # open crdb connection and keep it open until all data is added to the db.
-        connection = get_crdb_connection()
+        connection = get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL)
         data_to_json = json.loads(data)
         new_record_ids = []
         for item in data_to_json:
@@ -337,6 +318,7 @@ def save_to_db(data):
                             mrn=mrn,
                             cmo_patient_id=cmo_patient_id,
                             cmo_sample_id=cmo_id,
+                            dmp_id=dmp_id,
                         )
                         # Link Patient record to Sample record.
                         new_sample_record.patient = new_patient_record
@@ -363,6 +345,19 @@ def save_to_db(data):
                     db.session.commit()
                     AppLog.info(
                         message="Added new Sample record with  ID: {}".format(new_assay_record.id),
+                        user="api")
+                # if recipe value is present on data create new Assay record if required.
+                fastq_data = get_fastq_data(new_sample_record.igo_id)
+                if fastq_data:
+                    new_sample_fastq_data = Data(
+                        id_sample=new_sample_record.id,
+                        fastq_path=get_fastq_data(new_sample_record.igo_id)
+                    )
+                    db.session.add(new_sample_fastq_data)
+                    db.session.commit()
+                    AppLog.info(
+                        message="Added new Data record with ID: {}".format(
+                            new_sample_fastq_data.id),
                         user="api")
             # If sample record with igo_id already exists update Sample record and related Records.
             elif sample_record:
@@ -418,6 +413,7 @@ def update_record(sample_record, item, connection):
                 elif dmp_id:
                     patient_record.cmo_patient_id = dmp_id
                 patient_record.cmo_sample_id = item.get("cmoSampleId")
+                patient_record.dmp_id = dmp_id
                 patient_record.date_updated = datetime.datetime.now()
                 patient_record.updated_by = "api"
                 db.session.commit()
@@ -430,6 +426,7 @@ def update_record(sample_record, item, connection):
                     mrn=mrn,
                     cmo_patient_id=item.get("cmoPatientId") if item.get("cmoPatientId") else dmp_id,
                     cmo_sample_id=item.get("cmoSampleId"),
+                    dmp_id=dmp_id
                 )
                 sample_record.patient = new_patient_record
                 db.session.add(new_patient_record)
@@ -458,8 +455,81 @@ def update_record(sample_record, item, connection):
             db.session.commit()
             AppLog.info(message="Created new Assay record with ID: {}".format(new_assay_record.id),
                         user="api")
+        sample_fastq_data = Data.query.filter_by(id_sample=sample_record.id).first()
+        if sample_fastq_data:
+            print("update Data record")
+            sample_fastq_data.fastq_path=get_fastq_data(sample_record.igo_id)
+            db.session.commit()
+            AppLog.info(message="Updated Data record with ID: {}".format(sample_fastq_data.id),
+                        user="api")
+        else:
+            print("creating new Data record")
+            fastq_data = get_fastq_data(sample_record.igo_id)
+            if fastq_data:
+                new_sample_fastq_data = Data(
+                    id_sample=sample_record.id,
+                    fastq_path=get_fastq_data(sample_record.igo_id)
+                )
+                db.session.add(new_sample_fastq_data)
+                db.session.commit()
+                AppLog.info(
+                    message="Added new Data record with ID: {}".format(
+                        new_sample_fastq_data.id),
+                    user="api")
 
     except Exception as e:
         print(e)
         AppLog.error(message=str(repr(e)), user='api')
         LOG.error(e, exc_info=True)
+
+
+@app.route('/search', methods=['POST'])
+#@jwt_required
+def search():
+    global sample_objects
+    try:
+        if request.method == "POST":
+            search_data = request.get_json(silent=True)
+            print(search_data)
+            search_keywords = search_data.get("userinput")
+            search_type = search_data.get("searchtype")
+            user_role = search_data.get("user_role")
+            #current_user = get_jwt_identity()
+            print(search_keywords)
+            col_headers, column_defs, settings = get_column_configs(user_role)
+            if search_keywords and search_type == "mrn":
+                print("search_type", search_type)
+                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                print(search_keywords)
+                db_results = db.session.query(Sample, Patient, Assay)\
+                    .join(Patient, Sample.mrn == Patient.mrn)\
+                    .join(Assay, Sample.id == Assay.id_sample)\
+                    .join(Data, Sample.id == Data.id_sample)\
+                    .add_columns(Sample.mrn, Sample.igo_id, Sample.investigator_sample_id, Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id,Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.gender, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.do_not_use,
+                                 Assay.recipe, Assay.bait_set, Data.fastq_path)\
+                    .filter(Sample.mrn.in_(search_keywords)).all()
+                sample_objects = get_sample_objects(db_results)
+            response = make_response(jsonify(
+                    data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
+                    settings=settings), 200, None)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+
+            print(response)
+            return response
+
+    except Exception as e:
+        response = make_response(
+            jsonify(success=False,
+                    data="",
+                    message="Search Error: {}".format(repr(e))
+                    ),
+            200, None)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+

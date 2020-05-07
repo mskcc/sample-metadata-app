@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL, requestHeaders, BASE_ROUTE } from "../configs/react.configs";
+import { BASE_URL} from "../configs/react.configs";
 import * as constants from './ActionConstants';
 
 const searchdata_begin = () => {

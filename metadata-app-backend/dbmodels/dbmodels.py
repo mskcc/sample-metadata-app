@@ -12,9 +12,10 @@ class Patient(db.Model):
     __versioned__ = {}
     __tablename__= 'patient'
     id = db.Column(db.Integer, primary_key=True, index=True)
-    mrn = db.Column(db.String(300), unique=True, nullable=False, index=True)
+    mrn = db.Column(db.String(45), unique=True, nullable=False, index=True)
     cmo_patient_id = db.Column(db.String(300), nullable=False)
     cmo_sample_id = db.Column(db.String(300))
+    dmp_id = db.Column(db.String(300))
     date_created = db.Column(db.DateTime, default=datetime.datetime.now)
     created_by = db.Column(db.String(300), default="api")
     date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -26,7 +27,7 @@ class Sample(db.Model):
     __versioned__ = {}
     __tablename__ = 'sample'
     id = db.Column(db.Integer, primary_key=True, index=True)
-    mrn = db.Column(db.String(10), db.ForeignKey('patient.mrn'), index=True)
+    mrn = db.Column(db.String(45), db.ForeignKey('patient.mrn'), index=True)
     igo_id = db.Column(db.String(300), unique=True, nullable=True)
     investigator_sample_id = db.Column(db.String(300))
     sample_type = db.Column(db.String(300))
@@ -68,7 +69,7 @@ class Data(db.Model):
     __tablename__ = 'data'
     id = db.Column(db.Integer, primary_key=True, unique=True, index=True)
     id_sample = db.Column(db.Integer, db.ForeignKey('sample.id'), index=True)
-    fastq_path = db.Column(db.String(300))
+    fastq_path = db.Column(db.Text)
     date_created = db.Column(db.DateTime, default=datetime.datetime.now)
     created_by = db.Column(db.String(300), default="api")
     date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -126,31 +127,33 @@ class AppLog(db.Model):
 
 
 class SampleData:
-    def __init__(self, igoid=None, mrn=None, investigator_sampleid=None, cmo_patientid=None, cmo_sampleid=None,
-                 sample_type=None, species=None, preservation=None, tumor_normal=None,
-                 tissue_source=None, sample_origin=None, specimen_type=None, gender=None, parent_tumortype=None,
-                 tumortype=None,
-                 tissue_location=None, ancestor_sample=None, donotuse=False, assay=None, fastq_data=None):
-        self.igoid = igoid
+    def __init__(self, mrn= None, igo_id=None, investigator_sample_id=None, sample_type=None, species=None, cmo_patient_id=None, cmo_sample_id=None,
+                dmp_id=None, preservation=None, tumor_normal=None, tissue_source=None, sample_origin=None, specimen_type=None, gender=None, parent_tumor_type=None,
+                tumor_type=None, tissue_location=None, ancestor_sample=None, sample_status= None, do_not_use=False, recipe=None, bait_set=None, fastq_data=None):
+
         self.mrn = mrn
-        self.investigator_sampleid = investigator_sampleid
-        self.cmo_patientid = cmo_patientid
-        self.cmo_sampleid = cmo_sampleid
+        self.igo_id = igo_id
+        self.investigator_sample_id = investigator_sample_id
         self.sample_type = sample_type
         self.species = species
+        self.cmo_patient_id = cmo_patient_id
+        self.cmo_sample_id = cmo_sample_id
+        self.dmp_id = dmp_id
         self.preservation = preservation
         self.tumor_normal = tumor_normal
         self.tissue_source = tissue_source
         self.sample_origin = sample_origin
         self.specimen_type = specimen_type
         self.gender = gender
-        self.parent_tumortype = parent_tumortype
-        self.tumortype = tumortype
+        self.parent_tumor_type = parent_tumor_type
+        self.tumor_type = tumor_type
         self.tissue_location = tissue_location
         self.ancestor_sample = ancestor_sample
-        self.donotuse = donotuse
-        self.assay = assay
-        self.fastq_data = fastq_data
+        self.sample_status = sample_status
+        self.do_not_use = do_not_use
+        self.recipe = recipe
+        self.bait_set = bait_set
+        self.fastq_data =fastq_data
 
 
 sa.orm.configure_mappers()

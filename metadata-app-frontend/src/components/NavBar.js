@@ -10,13 +10,23 @@ import { logout } from "../actions/UserActions";
 
 const useStyles = makeStyles(theme => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
+  },
+  appBar:{
+    backgroundColor:'#007CBA',
+    height:50
   },
   menuButton: {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1
+  },
+  logoutButton:{
+    height:30,
+    fontSize:12,
+    marginBottom:5,
+    justifyContent:'center'
   }
 }));
 
@@ -27,7 +37,6 @@ const NavBar = props => {
     user && user.data && user.data.username ? user.data.username : null;
   const access_token =  user && user.data && user.data.access_token ? user.data.access_token : null;
   const dispatch = useDispatch();
-  console.log("access token: " + access_token);
 
   const handleLogout = props => {
     var headers = {
@@ -48,14 +57,14 @@ const NavBar = props => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar className = {classes.appBar} position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
             SSOT
           </Typography>
           {user && user.data && user.data.access_token && (
             <div>
-              <Button variant="outlined" color="inherit" onClick={handleLogout}>
+              <Button className={classes.logoutButton} variant="outlined" color="inherit" onClick={handleLogout}>
                 LOGOUT
               </Button>
             </div>

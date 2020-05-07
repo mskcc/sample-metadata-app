@@ -5,6 +5,7 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import {Provider} from 'react-redux';
 import {store}  from './store/Store';
+import 'handsontable/dist/handsontable.full.css';
 // import {persistor, store}  from './store/Store';
 // import { PersistGate } from 'redux-persist/integration/react'
 // import {Spinner} from './components/Spinner';

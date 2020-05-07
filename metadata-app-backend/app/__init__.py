@@ -50,7 +50,13 @@ USER = config_options['username']
 PASSW = config_options['password']
 ENV = config_options['env']
 PORT = config_options['port_dev']
+
 LIMS_API_ROOT = config_options['lims_end_point_dev']
+
+CRDB_UN = config_options['crdb_un']
+CRDB_PW = config_options['crdb_pw']
+CRDB_URL = config_options['crdb_url']
+
 if ENV == 'dev':
     PORT = config_options['port_dev']
     LIMS_API_ROOT = config_options['lims_end_point_dev']

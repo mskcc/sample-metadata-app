@@ -86,6 +86,7 @@ const Login = (props) => {
       setUsernameError(true);
     }
   }
+  
   const handlePasswordChange = (text) => {
     setPassword(text);
     if(text.length > 0 ){
@@ -106,9 +107,6 @@ const Login = (props) => {
         password: password,
       }
       dispatchLogin(login(data));
-      // if(user && user.data && user.data.access_token){
-      //   props.history.push("/home");
-      // }
     }
   };
 
@@ -125,7 +123,6 @@ const Login = (props) => {
         </Typography>
         {isFetching && <BackDrop className={classes.backdrop} isFetching = {isFetching}/>}
         {user && user.data && user.data.access_token ? <SnackBar open severity="success" message={user.data.message}/> : null }
-        {user && user.data && console.log(user.data.access_token)}
         <form className={classes.form} method="POST">
           <TextField
             variant="standard"

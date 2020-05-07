@@ -1,7 +1,9 @@
 ###############################################################HandsonTable Column configs #############################################################################
 
-clinicalColHeaders = ['MRN', 'Investigator Sample ID', 'CMO Patient ID', 'CMO Sample ID', 'Sample Type', 'Species', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                      'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location', 'Ancestor Sample ID', 'Assay', 'Fastq Files']
+clinicalColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
+                   'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
+                   'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'FastQ Data']
 clinicalColumns = [
 
     {
@@ -9,15 +11,11 @@ clinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'investigator_sampleid',
+        'data': 'igo_id',
         'readOnly': True
     },
     {
-        'data': 'cmo_patientid',
-        'readOnly': True
-    },
-    {
-        'data': 'cmo_sampleid',
+        'data': 'investigator_sample_id',
         'readOnly': True
     },
     {
@@ -26,6 +24,18 @@ clinicalColumns = [
     },
     {
         'data': 'species',
+        'readOnly': True
+    },
+    {
+        'data': 'cmo_patient_id',
+        'readOnly': True
+    },
+    {
+        'data': 'cmo_sample_id',
+        'readOnly': True
+    },
+    {
+        'data': 'dmp_id',
         'readOnly': True
     },
     {
@@ -53,11 +63,11 @@ clinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'parent_tumortype',
+        'data': 'parent_tumor_type',
         'readOnly': True
     },
     {
-        'data': 'tumortype',
+        'data': 'tumor_type',
         'readOnly': True
     },
     {
@@ -69,26 +79,44 @@ clinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'assay',
+        'data': 'sample_status',
+        'readOnly': True
+    },
+    {
+        'data': 'do_not_use',
+        'readOnly': True
+    },
+    {
+        'data': 'recipe',
+        'readOnly': True
+    },
+    {
+        'data': 'bait_set',
         'readOnly': True
     },
     {
         'data': 'fastq_data',
         'readOnly': True
-    },
+    }
 
 ]
 
-nonClinicalColHeaders = ['Investigator Sample ID', 'CMO Sample ID', 'Sample Type', 'Species', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                      'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location', 'Ancestor Sample ID', 'Assay', 'Fastq Files']
+nonClinicalColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
+                   'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
+                   'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'FastQ Data']
 
 nonClinicalColumns = [
     {
-        'data': 'investigator_sampleid',
+        'data': 'mrn',
         'readOnly': True
     },
     {
-        'data': 'cmo_sampleid',
+        'data': 'igo_id',
+        'readOnly': True
+    },
+    {
+        'data': 'investigator_sample_id',
         'readOnly': True
     },
     {
@@ -97,6 +125,18 @@ nonClinicalColumns = [
     },
     {
         'data': 'species',
+        'readOnly': True
+    },
+    {
+        'data': 'cmo_patient_id',
+        'readOnly': True
+    },
+    {
+        'data': 'cmo_sample_id',
+        'readOnly': True
+    },
+    {
+        'data': 'dmp_id',
         'readOnly': True
     },
     {
@@ -124,11 +164,11 @@ nonClinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'parent_tumortype',
+        'data': 'parent_tumor_type',
         'readOnly': True
     },
     {
-        'data': 'tumortype',
+        'data': 'tumor_type',
         'readOnly': True
     },
     {
@@ -140,33 +180,44 @@ nonClinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'assay',
+        'data': 'sample_status',
+        'readOnly': True
+    },
+    {
+        'data': 'do_not_use',
+        'readOnly': True
+    },
+    {
+        'data': 'recipe',
+        'readOnly': True
+    },
+    {
+        'data': 'bait_set',
         'readOnly': True
     },
     {
         'data': 'fastq_data',
         'readOnly': True
-    },
+    }
 
 ]
 
-adminColHeaders = ['MRN', 'Investigator Sample ID', 'CMO Patient ID', 'CMO Sample ID', 'Sample Type', 'Species', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                      'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location', 'Ancestor Sample ID', 'Assay', 'Fastq Files']
+
+adminColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
+                   'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
+                   'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'FastQ Data']
 adminColumns = [
     {
         'data': 'mrn',
         'readOnly': True
     },
     {
-        'data': 'investigator_sampleid',
+        'data': 'igo_id',
         'readOnly': True
     },
     {
-        'data': 'cmo_patientid',
-        'readOnly': True
-    },
-    {
-        'data': 'cmo_sampleid',
+        'data': 'investigator_sample_id',
         'readOnly': True
     },
     {
@@ -175,6 +226,18 @@ adminColumns = [
     },
     {
         'data': 'species',
+        'readOnly': True
+    },
+    {
+        'data': 'cmo_patient_id',
+        'readOnly': True
+    },
+    {
+        'data': 'cmo_sample_id',
+        'readOnly': True
+    },
+    {
+        'data': 'dmp_id',
         'readOnly': True
     },
     {
@@ -202,11 +265,11 @@ adminColumns = [
         'readOnly': True
     },
     {
-        'data': 'parent_tumortype',
+        'data': 'parent_tumor_type',
         'readOnly': True
     },
     {
-        'data': 'tumortype',
+        'data': 'tumor_type',
         'readOnly': True
     },
     {
@@ -218,15 +281,26 @@ adminColumns = [
         'readOnly': True
     },
     {
-        'data': 'assay',
+        'data': 'sample_status',
+        'readOnly': True
+    },
+    {
+        'data': 'do_not_use',
+        'readOnly': True
+    },
+    {
+        'data': 'recipe',
+        'readOnly': True
+    },
+    {
+        'data': 'bait_set',
         'readOnly': True
     },
     {
         'data': 'fastq_data',
         'readOnly': True
-    },
+    }
 ]
-
 settings = {
     'columnSorting': True,
     'filters': True,
@@ -234,8 +308,7 @@ settings = {
     'width': '100%',
     'height': 500,
     'colWidths': [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
-                  200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
-                  200, 200, 200, 200, 200, 200, 200],
+                  200, 200, 200, 200, 200, 200],
     'manualColumnResize': True,
     'rowHeaders': True,
     'colHeaders': True,
