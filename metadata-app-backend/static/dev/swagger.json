@@ -1,0 +1,106 @@
+{
+    "swagger":"2.0",
+    "info":{
+        "description":"This is a Sample Metadata service hosted by IGO/CMO at MSKCC.",
+        "version":"1.0.0",
+        "title":"Sample Metadata",
+        "termsOfService":"",
+        "contact":{
+            "email":"zzPDL_SKI_IGO_DATA@mskcc.org"
+        }
+    },
+    "host":"localhost:5000",
+    "basePath":"/api",
+    "tags":[
+        {
+            "name":"search_metadata",
+            "description":"Search Sample Metadata"
+        }
+    ],
+    "schemes":[
+        "https",
+        "http"
+    ],
+    "paths":{
+        "/search_metadata":{
+            "post":{
+                "tags":[
+                    "search_metadata"
+                ],
+                "summary":"returns sample metadata",
+                "description":"",
+                "operationId":"search",
+                "consumes":[
+                    "application/json"
+                ],
+                "produces":[
+                    "application/json"
+                ],
+                "parameters":[
+                    {
+                        "name":"cmo_id",
+                        "in":"query",
+                        "description":"CMO ID of the Sample.",
+                        "type":"string"
+                    },
+                    {
+                        "name":"igo_id",
+                        "in":"query",
+                        "description":"IGO ID of the Sample.",
+                        "type":"string"
+                    }
+                ],
+                "responses":{
+                    "200":{
+                        "description":"A list of Samples matching the query parameter."
+                    },
+                    "400":{
+                        "description":"Bad Request. Raised when passed more than one or invalid query parameter."
+                    },
+                    "500":{
+                        "description":"Server side error."
+                    }
+                },
+                "security":[
+                    {
+                        "ApiKeyAuth":[
+                            "read:search_metadata"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "securityDefinitions":{
+        "ApiKeyAuth":{
+            "type":"apiKey",
+            "in":"header",
+            "name": "Authorization",
+            "description": "Type in the *'Value'* input box below: **'Bearer &lt;JWT&gt;'**, where JWT is the token"
+        }
+    },
+    "definitions":{
+        "ApiResponse":{
+            "type":"object",
+            "properties":{
+                "data":{
+                    "type":"array",
+                    "format":"application/json"
+                },
+                "error":{
+                    "type":"boolean"
+                },
+                "message":{
+                    "type":"string"
+                },
+                "success":{
+                    "type":"boolean"
+                }
+            }
+        }
+    },
+    "externalDocs":{
+        "description":"Find out more about Swagger",
+        "url":"http://swagger.io"
+    }
+}

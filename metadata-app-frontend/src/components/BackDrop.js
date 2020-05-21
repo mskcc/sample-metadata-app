@@ -10,13 +10,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const BackDrop = (props) => {
+//this component is not being used right now in any of the components.
+//But this might be useful in future. So, leaving it in the code.
+const BackDrop = (props) => {
   const classes = useStyles();
+  const isFetching = props;
   return (
     <div>
-      <Backdrop className={classes.backdrop} open={props.isFetching}>
+      <Backdrop className={classes.backdrop} open={isFetching}>
         <CircularProgress color="inherit" />
       </Backdrop>
     </div>
   );
-}
+};
+
+export default BackDrop;

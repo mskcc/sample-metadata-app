@@ -1,6 +1,5 @@
 import datetime
 import os
-import ssl
 from datetime import timedelta
 import time
 from flask import json
@@ -19,28 +18,19 @@ from flask_jwt_extended import (
 )
 from flask_migrate import Migrate
 from flask import Flask
-from urllib3 import PoolManager
 from dbmodels.dbmodels import db, Sample, Patient, Assay, Data, AppLog
 import appconfigs.user_view_configs as gridconfigs
 from utils.utils import get_user_title, get_user_group, get_user_fullname, get_crdb_connection
 
 app = Flask(__name__)
-#
-# CORS(app)
 
-from requests.adapters import HTTPAdapter
+###################################### register blueprints ##########################################
 
+from outbound_api.outbound_api import outbound_api
+app.register_blueprint(outbound_api, url_prefix="/api")
 
-class MyAdapter(HTTPAdapter):
-    def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = PoolManager(num_pools=connections,
-                                       maxsize=maxsize,
-                                       block=block,
-                                       ssl_version=ssl.PROTOCOL_SSLv23)
-
-
-s = requests.Session()
-s.mount('https://', MyAdapter())
+from outbound_api.outbound_api import SWAGGER_URL, SWAGGERUI_BLUEPRINT
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
 ####################################### app configuration settings ###################################
 
@@ -70,9 +60,9 @@ elif ENV == 'local':
     LIMS_API_ROOT = config_options['lims_end_point_local']
     app.config['SQLALCHEMY_DATABASE_URI'] = config_options['db_uri_local']
 
-print(PORT)
-print(LIMS_API_ROOT)
-print(app.config['SQLALCHEMY_DATABASE_URI'])
+# print(PORT)
+# print(LIMS_API_ROOT)
+# print(app.config['SQLALCHEMY_DATABASE_URI'])
 AUTH_LDAP_URL = config_options['auth_ldap_url']
 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy dog'

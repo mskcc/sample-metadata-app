@@ -3,20 +3,21 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import {Provider} from 'react-redux';
-import {store}  from './store/Store';
-import 'handsontable/dist/handsontable.full.css';
-// import {persistor, store}  from './store/Store';
-// import { PersistGate } from 'redux-persist/integration/react'
-// import {Spinner} from './components/Spinner';
+import { Provider } from "react-redux";
+import { store, persistor } from "./store/Store";
+import "handsontable/dist/handsontable.full.css";
+import { PersistGate } from 'redux-persist/integration/react'
+import { ToastContainer} from 'react-toastify';
+
+  import 'react-toastify/dist/ReactToastify.css';
 
 ReactDOM.render(
   <Provider store={store}>
-    {/* <PersistGate loading={Spinner} persistor={persistor}> */}
-        <App />
-    {/* </PersistGate> */}
+    <PersistGate persistor={persistor}>
+      <ToastContainer autoClose={3000}/>
+      <App/>
+    </PersistGate>
   </Provider>,
-
   document.getElementById("root")
 );
 

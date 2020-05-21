@@ -1,30 +1,37 @@
 import re
 import traceback
-
 from app import *
-from utils.utils import get_column_configs, get_sample_objects, get_fastq_data
+from dbmodels.dbmodels import UserViewConfig
+from utils.utils import get_column_configs, get_sample_objects, get_fastq_data, s, add_to_logs, add_error_to_logs
 
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
-    '''
+    """
     This method is here only to test at times if the app is working correctly.
     :return:
-    '''
-    AppLog.info(message="Testing the app.", user="api")
+    """
+    add_to_logs("Testing the app.", user="api")
     return jsonify(columnHeaders=gridconfigs.clinicalColHeaders, columns=gridconfigs.clinicalColumns,
                    settings=gridconfigs.settings), 200
 
 
 def get_lims_recipes():
+    """
+    Method to get recipe list from LIMS to populate recipe selection field on front end.
+    :return
+    """
     r = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Recipe",
               auth=(USER, PASSW), verify=False)
     data = r.content.decode("utf-8", "strict")
-    print(json.loads(data))
     return json.loads(data)
 
 
 def get_ldap_connection():
+    """
+    Method to get ldap connection to validate user credentials.
+    :return
+    """
     conn = ldap.initialize(AUTH_LDAP_URL)
     conn.protocol_version = ldap.VERSION3
     conn.set_option(ldap.OPT_REFERRALS, 0)
@@ -33,14 +40,13 @@ def get_ldap_connection():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    '''
+    """
     Login user using ldap connection and validate user role.
     :return:
-    '''
+    """
     if request.method == "POST":
         login_credentials = request.get_json(silent=True)
         username = login_credentials.get('username').split("@")[0]
-        print(username)
         password = login_credentials.get('password')
         try:
             conn = get_ldap_connection()
@@ -53,7 +59,8 @@ def login():
                 attrs,
             )
             role = 'user'
-            user_fullname = ''
+            user_fullname = ''  # this variable works on dev side but fails on the production hence marked as
+            # not found for time being.
             user_groups = get_user_group(result)
             # check user role
             if len(set(user_groups).intersection(set(ADMIN_GROUPS))) > 0:
@@ -61,48 +68,50 @@ def login():
             elif len(set(user_groups).intersection(set(CLINICAL_GROUPS))) > 0:
                 role = 'clinical'
             conn.unbind_s()
-            LOG.info("Successfully authenticated and logged {} into the app with role {}.".format(username, role))
-            AppLog.info(message="Successfully authenticated and logged into the app.", user=username)
             access_token = create_access_token(identity=username)
             refresh_token = create_refresh_token(identity=username)
             recipe_list = get_lims_recipes()
             response = make_response(
                 jsonify(
-                    valid=True,
+                    success=True,
                     username=username,
                     role=role,
-                    title="not found",
+                    title="not found",  # this variable works on dev side but fails on the production hence marked as
+                    # not found for time being.
                     user_fullname=user_fullname,
                     access_token=access_token,
                     refresh_token=refresh_token,
-                    recipes = recipe_list,
-                    message="Login Successful"
+                    recipes=recipe_list,
+                    message="Successfully logged in {}".format(username)
                 ),
                 200, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
+            message = "Successfully authenticated and logged {} into the app with role {}.".format(username, role)
+            add_to_logs(message, username)
             return response
         except ldap.INVALID_CREDENTIALS:
             response = make_response(
                 jsonify(
-                    valid=False,
+                    success=False,
                     username=None,
                     role=None,
                     title=None,
                     user_fullname=None,
                     access_token=None,
                     refresh_token=None,
-                    message="Invalid username of password"
+                    recipes=None,
+                    error=True,
+                    message="Invalid username or password"
                 ),
                 200, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
-            AppLog.log(AppLog(level="WARNING", process="Root", user=username,
-                              message="Invalid username or password."))
-            AppLog.warning(message="Invalid username or password.", user=username)
+            message = "Invalid username or password."
+            add_error_to_logs(message, username)
             return make_response(response)
         except ldap.OPERATIONS_ERROR as e:
             response = make_response(
                 jsonify(
-                    valid=False,
+                    success=False,
                     username=None,
                     role=None,
                     title=None,
@@ -111,19 +120,20 @@ def login():
                     refresh_token=None,
                     message="Server error, try again later"
                 ),
-                200, None)
+                500, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
-            AppLog.error(message="ldap OPERATION ERROR occured. {}".format(e), user=username)
+            message = "ldap OPERATION ERROR occured. {}".format(repr(e))
+            add_error_to_logs(message, username)
             return make_response(response)
 
 
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
-    '''
+    """
     Add JWT token to blacklist.
     :param decrypted_token:
     :return:
-    '''
+    """
     jti = decrypted_token['jti']
     return jti in blacklist
 
@@ -131,38 +141,41 @@ def check_if_token_in_blacklist(decrypted_token):
 @app.route('/logout', methods=['POST'])
 @jwt_required
 def logout():
+    """
+    To log out user and also to end user session.
+    :return
+    """
+    current_user = None
     try:
         if request.method == "POST":
             user_data = request.get_json(silent=True)
-            print(user_data)
             current_user = get_jwt_identity()
             jti = get_raw_jwt()['jti']
             blacklist.add(jti)
-            AppLog.log(AppLog(level="INFO", process="Root", user=current_user,
-                              message="Successfully logged out user " + current_user))
+            add_to_logs("Successfully logged out user ", current_user)
             response = make_response(
-                jsonify(success=True,
-                        username=None,
-                        role=None,
-                        title=None,
-                        user_fullname=None,
-                        access_token=None,
-                        refresh_token=None,
-                        recipes=None,
-                        message="Successfully logged out user {}".format(current_user)),
+                jsonify(
+                    success=True,
+                    username=None,
+                    role=None,
+                    title=None,
+                    user_fullname=None,
+                    access_token=None,
+                    refresh_token=None,
+                    recipes=None,
+                    message="Successfully logged out user {}".format(current_user)),
                 200, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
     except Exception as e:
-        AppLog.log(AppLog(level="ERROR",
-                          process="Root",
-                          user=current_user,
-                          message="Error while logging out user {}: {}".format(current_user, repr(e))))
+        mesage = "Error while logging out user {}: {}".format(current_user, repr(e))
+        add_error_to_logs(mesage, current_user)
         response = make_response(
-            jsonify(success=False,
-                    message="Error while logging out user {}: {}".format(current_user, repr(e)),
-                    error=repr(e)),
-            200, None)
+            jsonify(
+                success=False,
+                message="Error while logging out user {}: {}".format(current_user, repr(e)),
+                error=True),
+            401, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
@@ -173,8 +186,7 @@ def get_metadata():
     @:param timestamp
     Method to get 'Sample' metadata from LimsRest endpoint 'getSampleMetadata' using a 'timestamp' as parameter.
     If timestamp parameter passed is 'None' then this method generates a timestamp and passes to LimsRest endpoint.
-    The end point returns metadata for all the child samples of a request where Request.status is 'Completed'
-    and Request.DateCompleted greater than 'timestamp' passed as parameter to this endpoint.
+    The end point returns metadata for all the child samples of a request created after the given timestamp.
     :return: List of SampleMetadata objects
     """
     try:
@@ -185,8 +197,6 @@ def get_metadata():
             # if timestamp is not present generate one for 1.1 days in the past.
             timestamp = time.mktime((datetime.datetime.today() - timedelta(
                 days=1.1)).timetuple()) * 1000
-        print(timestamp)
-
         # query LimsRest endpoint
         r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(int(timestamp)),
                   auth=(USER, PASSW), verify=False)
@@ -194,17 +204,14 @@ def get_metadata():
 
         # to record how many new Sample records were added to the database.
         ids = save_to_db(data)
-        LOG.info("Added {} new records to the Metadata Database".format(ids))
-        AppLog.info(message="Added {} new records to the Sample Metadata Database".format(ids), user="api")
+        add_to_logs("Added {} new records to the Metadata Database".format(ids), "api")
         response = make_response(jsonify(data=(len(ids))), 200, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
     except Exception as e:
-        print(e)
-        AppLog.error(message=str(repr(e)), user='api')
-        LOG.error(traceback.print_exc())
-        response = make_response(jsonify(data="", error="There was a problem processing the request."), 200, None)
+        add_error_to_logs("Error {}".format(str(repr(e))), "api")
+        response = make_response(jsonify(data="", error="There was a problem processing the request."), 500, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
@@ -216,22 +223,26 @@ def get_mrn(connection, cmo_id):
     :param cmo_id
     :returns MRN, DMP_ID
     """
-    sql = """ 
-          SELECT pt_mrn, dmp_id FROM crdb_cmo_loj_dmp_map
-          WHERE cmo_id = :p_cmo_id
-          """
-    # Allocate Cursor
-    cursor = connection.cursor()
-    cursor.execute(sql, p_cmo_id=cmo_id)
-    mrn = None
-    dmp_id = None
-    for row in cursor:
-        mrn, dmp_id = row
-        # we need only first record. break loop after first iteration is done.
-        break
-    print("get mrn -> mrn and dmp_id: ", mrn, dmp_id)
-    cursor.close()
-    return mrn, dmp_id
+    try:
+        sql = """ 
+              SELECT pt_mrn, dmp_id FROM crdb_cmo_loj_dmp_map
+              WHERE cmo_id = :p_cmo_id
+              """
+        # Allocate Cursor
+        cursor = connection.cursor()
+        cursor.execute(sql, p_cmo_id=cmo_id)
+        mrn = None
+        dmp_id = None
+        for row in cursor:
+            mrn, dmp_id = row
+            # we need only first record. break loop after first iteration is done.
+            break
+        add_to_logs("get mrn -> mrn and dmp_id: {}, {}".format(mrn, dmp_id))
+        cursor.close()
+        return mrn, dmp_id
+    except Exception as e:
+        add_error_to_logs("Error: CRDB query failed. {}".format(repr(e)), "api")
+        return None, None
 
 
 def get_cmo_id_for_mrn(cmo_id):
@@ -241,14 +252,17 @@ def get_cmo_id_for_mrn(cmo_id):
     @:param cmo_id
     :returns cmo_id_for_mrn
     """
-    if cmo_id:
-        print("get cmo id for mrn -> cmo_id: ", cmo_id)
-        cmo_id_split = cmo_id.split("-")
-        if len(cmo_id_split) > 1:
-            cmo_id_for_mrn = cmo_id_split[1]
-            print("get cmo id for mrn -> cmo_id_for_mrn: ", cmo_id_for_mrn)
-            return cmo_id_for_mrn
-    return None
+    try:
+        if cmo_id:
+            add_to_logs("get cmo id for mrn -> cmo_id: {}".format(cmo_id), "api")
+            cmo_id_split = cmo_id.split("-")
+            if len(cmo_id_split) > 1:
+                cmo_id_for_mrn = cmo_id_split[1]
+                return cmo_id_for_mrn
+        return None
+    except Exception as e:
+        add_error_to_logs("Error: {}".format(repr(e)), "api")
+        return None
 
 
 def save_to_db(data):
@@ -276,7 +290,6 @@ def save_to_db(data):
             sample_record = Sample.query.filter_by(igo_id=igo_id).first()
             if not sample_record:
                 # create new record if Sample record does not exist already.
-                print("creating new sample record.")
                 new_sample_record = Sample(
                     igo_id=item.get('igoId'),
                     investigator_sample_id=item.get("investigatorSampleId"),
@@ -287,12 +300,13 @@ def save_to_db(data):
                     tissue_source=item.get("tissueSource"),
                     sample_origin=item.get("sampleOrigin"),
                     specimen_type=item.get("specimenType"),
-                    gender=item.get("sex"),
+                    sex=item.get("sex"),
                     parent_tumor_type=item.get("parentTumorType"),
                     tumor_type=item.get("tumorType"),
                     tissue_location=item.get("tissueLocation"),
                     ancestor_sample=item.get("ancestorSample"),
                     sample_status=item.get("sampleStatus"),
+                    lab_head=item.get("principalInvestigator"),
                     do_not_use=item.get("doNotUse"),
                 )
                 db.session.add(new_sample_record)
@@ -313,7 +327,6 @@ def save_to_db(data):
                     patient_rec = Patient.query.filter_by(mrn=mrn).first()
                     if not patient_rec:
                         # create new Patient record
-                        print("creating new patient record.")
                         new_patient_record = Patient(
                             mrn=mrn,
                             cmo_patient_id=cmo_patient_id,
@@ -329,12 +342,11 @@ def save_to_db(data):
                                 new_patient_record.id),
                             user="api")
                     else:
-                        new_sample_record.patient=patient_rec
+                        new_sample_record.patient = patient_rec
                         db.session.commit()
                 recipe = item.get("recipe")
                 # if recipe value is present on data create new Assay record if required.
                 if recipe:
-                    print("creating new assay record")
                     new_assay_record = Assay(
                         id_sample=igo_id,
                         recipe=recipe,
@@ -343,9 +355,7 @@ def save_to_db(data):
                     )
                     db.session.add(new_assay_record)
                     db.session.commit()
-                    AppLog.info(
-                        message="Added new Sample record with  ID: {}".format(new_assay_record.id),
-                        user="api")
+                    add_to_logs("Added new Sample record with  ID: {}".format(new_assay_record.id), "api")
                 # if recipe value is present on data create new Assay record if required.
                 fastq_data = get_fastq_data(new_sample_record.igo_id)
                 if fastq_data:
@@ -355,32 +365,24 @@ def save_to_db(data):
                     )
                     db.session.add(new_sample_fastq_data)
                     db.session.commit()
-                    AppLog.info(
-                        message="Added new Data record with ID: {}".format(
-                            new_sample_fastq_data.id),
-                        user="api")
+                    add_to_logs("Added new Data record with ID: {}".format(new_sample_fastq_data.id), "api")
             # If sample record with igo_id already exists update Sample record and related Records.
             elif sample_record:
                 update_record(sample_record, item, connection)
         connection.close()
         return new_record_ids  # return list of new Sample record ids created and saved to db
     except Exception as e:
-        print(e)
-        AppLog.error(message=str(repr(e)), user='api')
-        LOG.error(e, exc_info=True)
+        add_error_to_logs("Error: while saving new records to db: {}".format(repr(e)), "api")
 
 
 def update_record(sample_record, item, connection):
     """:param
     """
     try:
-        print("started updating Sample record")
         cmo_id_for_mrn = get_cmo_id_for_mrn(item.get("cmoSampleId"))
-        print("update record -> cmo_id_for_mrn: ", cmo_id_for_mrn)
         dmp_id = None
         mrn = None
         if cmo_id_for_mrn:
-            print("updating sample record.")
             mrn, dmp_id = get_mrn(connection, cmo_id_for_mrn)
             sample_record.investigator_sample_id = item.get("investigatorSampleId")
             sample_record.sample_type = item.get("sampleType")
@@ -390,7 +392,7 @@ def update_record(sample_record, item, connection):
             sample_record.tissue_source = item.get("tissueSource")
             sample_record.sample_origin = item.get("sampleOrigin")
             sample_record.specimen_type = item.get("specimenType")
-            sample_record.gender = item.get("sex")
+            sample_record.sex = item.get("sex")
             sample_record.parent_tumor_type = item.get("parentTumorType")
             sample_record.tumor_type = item.get("tumorType")
             sample_record.tissue_location = item.get("tissueLocation")
@@ -399,15 +401,11 @@ def update_record(sample_record, item, connection):
             sample_record.date_updated = datetime.datetime.now()
             sample_record.updated_by = "api"
             db.session.commit()
-            AppLog.info(message="Update Sample record with ID: {}".format(sample_record.id),
-                        user="api")
+            add_to_logs("Update Sample record with ID: {}".format(sample_record.id), "api")
         # find and update the Patient record.
         if mrn:
-            print("mrn true:", mrn)
             patient_record = Patient.query.filter_by(mrn=mrn).first()
-            print(patient_record)
             if patient_record:
-                print("Updating existing patient record", patient_record)
                 if item.get("cmoPatientId"):
                     patient_record.cmo_patient_id = item.get("cmoPatientId")
                 elif dmp_id:
@@ -417,11 +415,9 @@ def update_record(sample_record, item, connection):
                 patient_record.date_updated = datetime.datetime.now()
                 patient_record.updated_by = "api"
                 db.session.commit()
-                AppLog.info(message="Updated Patient record with ID: {}".format(patient_record.id),
-                            user="api")
+                add_to_logs("Updated Patient record with ID: {}".format(patient_record.id),"api")
 
             else:
-                print("creating new Patient record")
                 new_patient_record = Patient(
                     mrn=mrn,
                     cmo_patient_id=item.get("cmoPatientId") if item.get("cmoPatientId") else dmp_id,
@@ -431,21 +427,17 @@ def update_record(sample_record, item, connection):
                 sample_record.patient = new_patient_record
                 db.session.add(new_patient_record)
                 db.session.commit()
-                AppLog.info(message="Added new Patient record with ID: {}".format(new_patient_record.id),
-                            user="api")
+                add_to_logs("Added new Patient record with ID: {}".format(new_patient_record.id), "api")
 
         assay_record = Assay.query.filter_by(id_sample=sample_record.id).first()
         if assay_record:
-            print("updating assay record")
             assay_record.recipe = item.get("recipe")
             assay_record.bait_set = item.get("baitset")
             assay_record.date_updated = datetime.datetime.now()
             assay_record.updated_by = "api"
             db.session.commit()
-            AppLog.info(message="Updated Assay record with ID: {}".format(assay_record.id),
-                        user="api")
+            add_to_logs("Updated Assay record with ID: {}".format(assay_record.id), "api")
         else:
-            print("creating new assay record")
             new_assay_record = Assay(
                 recipe=item.get("recipe"),
                 bait_set=item.get("baitset"),
@@ -453,17 +445,13 @@ def update_record(sample_record, item, connection):
             )
             db.session.add(new_assay_record)
             db.session.commit()
-            AppLog.info(message="Created new Assay record with ID: {}".format(new_assay_record.id),
-                        user="api")
+            add_to_logs("Created new Assay record with ID: {}".format(new_assay_record.id), "api")
         sample_fastq_data = Data.query.filter_by(id_sample=sample_record.id).first()
         if sample_fastq_data:
-            print("update Data record")
-            sample_fastq_data.fastq_path=get_fastq_data(sample_record.igo_id)
+            sample_fastq_data.fastq_path = get_fastq_data(sample_record.igo_id)
             db.session.commit()
-            AppLog.info(message="Updated Data record with ID: {}".format(sample_fastq_data.id),
-                        user="api")
+            add_to_logs("Updated Data record with ID: {}".format(sample_fastq_data.id), "api")
         else:
-            print("creating new Data record")
             fastq_data = get_fastq_data(sample_record.igo_id)
             if fastq_data:
                 new_sample_fastq_data = Data(
@@ -472,64 +460,276 @@ def update_record(sample_record, item, connection):
                 )
                 db.session.add(new_sample_fastq_data)
                 db.session.commit()
-                AppLog.info(
-                    message="Added new Data record with ID: {}".format(
-                        new_sample_fastq_data.id),
-                    user="api")
+                add_to_logs("Added new Data record with ID: {}".format(
+                        new_sample_fastq_data.id), "api")
 
     except Exception as e:
-        print(e)
-        AppLog.error(message=str(repr(e)), user='api')
-        LOG.error(e, exc_info=True)
+        message = "Error: while adding new records to db: {}".format(repr(e))
+        add_error_to_logs(message, "api")
 
 
 @app.route('/search', methods=['POST'])
-#@jwt_required
+@jwt_required
 def search():
     global sample_objects
     try:
         if request.method == "POST":
             search_data = request.get_json(silent=True)
-            print(search_data)
-            search_keywords = search_data.get("userinput")
-            search_type = search_data.get("searchtype")
+            search_keywords = search_data.get("search_keywords")
+            search_type = search_data.get("search_type")
+            exact_match = search_data.get("exact_match")
+            application = search_data.get("application")
+            has_data = search_data.get("has_data")
+            # is_published = search_data.get("is_published")  //in progress. Need source to validate published status.
             user_role = search_data.get("user_role")
-            #current_user = get_jwt_identity()
-            print(search_keywords)
-            col_headers, column_defs, settings = get_column_configs(user_role)
-            if search_keywords and search_type == "mrn":
-                print("search_type", search_type)
-                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
-                print(search_keywords)
-                db_results = db.session.query(Sample, Patient, Assay)\
-                    .join(Patient, Sample.mrn == Patient.mrn)\
-                    .join(Assay, Sample.id == Assay.id_sample)\
-                    .join(Data, Sample.id == Data.id_sample)\
-                    .add_columns(Sample.mrn, Sample.igo_id, Sample.investigator_sample_id, Sample.sample_type,
-                                 Sample.species, Patient.cmo_patient_id,Patient.cmo_sample_id, Patient.dmp_id,
-                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
-                                 Sample.specimen_type, Sample.gender, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.do_not_use,
-                                 Assay.recipe, Assay.bait_set, Data.fastq_path)\
-                    .filter(Sample.mrn.in_(search_keywords)).all()
-                sample_objects = get_sample_objects(db_results)
+            current_user = get_jwt_identity()
+            col_headers, column_defs, settings = get_column_configs(user_role, current_user)
+            # log search event in AppLog table.
+            add_to_logs("User data search using parameters: {}.".format(search_data), user=current_user)
+            # create empty response object.
             response = make_response(jsonify(
+                data=[], col_headers=col_headers, column_defs=column_defs,
+                settings=settings, success=True, error=False), 200, None)
+            kwargs = {}  # initialize kwargs for filtering
+            if application:
+                kwargs["application"] = application
+            if has_data:
+                kwargs["has_data"] = has_data
+            ## search for mrn's
+            if search_keywords and search_type == "mrn":
+                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                db_results = db.session.query(Patient) \
+                    .outerjoin(Sample, Patient.mrn == Sample.mrn) \
+                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
+                                 Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                    .filter(Sample.mrn.in_(search_keywords)).all()
+                sample_objects = get_sample_objects(db_results, **kwargs)
+                response = make_response(jsonify(
                     data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
                                      indent=4,
                                      separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
-                    settings=settings), 200, None)
-            response.headers.add('Access-Control-Allow-Origin', '*')
+                    settings=settings, success=True, error=False), 200, None)
 
-            print(response)
+            ## search for tumor type with exact match for search_keywords.
+            elif search_keywords and search_type == "tumor type" and exact_match:
+                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                db_results = db.session.query(Sample) \
+                    .outerjoin(Patient, Patient.mrn == Sample.mrn) \
+                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
+                                 Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                    .filter(Sample.parent_tumor_type.in_(search_keywords)).all()
+                sample_objects = get_sample_objects(db_results, **kwargs)
+                response = make_response(jsonify(
+                    data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
+                    settings=settings, success=True, error=False), 200, None)
+
+            ## search for tumor type that is like %search_keywords%.
+            elif search_keywords and search_type == "tumor type" and not exact_match:
+                search_keywords = ["%{}%".format(x.strip()) for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                db_results = db.session.query(Sample) \
+                    .outerjoin(Patient, Patient.mrn == Sample.mrn) \
+                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
+                                 Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                    .filter(Sample.parent_tumor_type.like(search_keywords)).all()
+                sample_objects = get_sample_objects(db_results, **kwargs)
+                # apply additional filtering like has_data and is_published
+                response = make_response(jsonify(
+                    data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
+                    settings=settings, success=True, error=False), 200, None)
+
+            ## search db using patient id.
+            elif search_keywords and search_type == "patient id":
+                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                db_results = db.session.query(Patient) \
+                    .outerjoin(Sample, Patient.mrn == Sample.mrn) \
+                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
+                                 Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                    .filter(Patient.cmo_patient_id.in_(search_keywords)).all()
+                # apply additional filtering like has_data and is_published
+                sample_objects = get_sample_objects(db_results, **kwargs)
+                response = make_response(jsonify(
+                    data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
+                    settings=settings, success=True, error=False), 200, None)
+            ## search db using igo id
+            elif search_keywords and search_type == "igo id":
+                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                db_results = db.session.query(Sample) \
+                    .outerjoin(Patient, Patient.mrn == Sample.mrn) \
+                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
+                                 Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                    .filter(Sample.igo_id.in_(search_keywords)).all()
+                # apply additional filtering like has_data and is_published
+                sample_objects = get_sample_objects(db_results, **kwargs)
+                response = make_response(jsonify(
+                    data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
+                    settings=settings, success=True, error=False), 200, None)
+
+            ## search db using cmo id
+            elif search_keywords and search_type == "cmo id":
+                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                db_results = db.session.query(Patient) \
+                    .outerjoin(Sample, Patient.mrn == Sample.mrn) \
+                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
+                                 Sample.sample_type,
+                                 Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
+                                 Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
+                                 Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                    .filter(Patient.cmo_sample_id.in_(search_keywords)).all()
+                # apply additional filtering like has_data and is_published
+                sample_objects = get_sample_objects(db_results, **kwargs)
+                response = make_response(jsonify(
+                    data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
+                                     indent=4,
+                                     separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
+                    settings=settings, success=True, error=False), 200, None)
+            response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 
     except Exception as e:
+        add_error_to_logs("Error: while serving search query: {}".format(repr(e)), "api")
         response = make_response(
             jsonify(success=False,
-                    data="",
+                    data=None,
+                    error=True,
                     message="Search Error: {}".format(repr(e))
                     ),
-            200, None)
+            500, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
+
+@app.route('/save_data', methods=['POST'])
+@jwt_required
+def save_user_view_configs():
+    try:
+        if request.method == "POST":
+            request_data = request.get_json(silent=True)
+            username = get_jwt_identity()
+            add_to_logs("Saving data to db: {}".format(request_data), username)
+            total_saved = 0
+            for item in request_data:
+                sample_data = db.session.query(Sample).filter_by(id=item.get("id")).first()
+                if sample_data:
+                    sample_data.do_not_use = 1 if item.get("do_not_use").lower() == "true" else 0
+                    sample_data.data_access = item.get("data_access")
+                    sample_data.date_updated = datetime.datetime.now()
+                    sample_data.updated_by = username
+                    db.session.commit()
+                    total_saved += 1
+                    AppLog.info(message="Updated Sample record with ID: {}".format(sample_data.id), user=username)
+            response = make_response(
+                jsonify(
+                    success=True,
+                    error=False,
+                    message="Successfully updated {} Sample records.".format(total_saved),
+                ),
+                200, None)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            add_to_logs("Successfully saved data.", username)
+            return response
+    except Exception as e:
+        message = "while updating data: {}".format(repr(e))
+        add_error_to_logs(message, "api")
+        response = make_response(
+            jsonify(
+                success=False,
+                error=True,
+                message="Error while updating Sample records."), 500, None)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+
+@app.route('/save_view_configs', methods=['POST'])
+@jwt_required
+def save_view_configs():
+    try:
+        if request.method == "POST":
+            request_params = request.get_json(silent=True)
+            hidden_columns = request_params.get("hiddenColumns")
+            username = get_jwt_identity()
+            hidden_columns_str_val = ",".join(str(integer) for integer in hidden_columns) if len(hidden_columns) > 0 \
+                else None
+            if username:
+                user_view_config = UserViewConfig.query.filter_by(username=username).first()
+                if user_view_config:
+                    user_view_config.hidden_columns = hidden_columns_str_val
+                    user_view_config.date_updated = datetime.datetime.now()
+                    db.session.commit()
+                    add_to_logs("Updated UserViewConfig record with ID: {}".format(user_view_config.id), username)
+                    response = make_response(
+                        jsonify(
+                            success=True,
+                            data=hidden_columns,
+                            error=False,
+                            message="Successfully saved view configs"), 200, None)
+                    response.headers.add('Access-Control-Allow-Origin', '*')
+                    return response
+                else:
+                    user_view_config = UserViewConfig(
+                        username=username,
+                        hidden_columns=hidden_columns_str_val
+                    )
+                    db.session.add(user_view_config)
+                    db.session.commit()
+                    add_to_logs("Created new UserViewConfig record with ID: {}".format(user_view_config.id), username)
+                    response = make_response(
+                        jsonify(
+                            success=True,
+                            data=hidden_columns,
+                            error=False,
+                            message="Successfully saved view configs"), 200, None)
+                    response.headers.add('Access-Control-Allow-Origin', '*')
+                    return response
+
+    except Exception as e:
+        message = "Error while updating user view configs: {}".format(repr(e))
+        add_error_to_logs(message, "api")
+        response = make_response(
+            jsonify(
+                success=False,
+                data=None,
+                error=False,
+                message="Error while saving view configs"), 500, None)
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
