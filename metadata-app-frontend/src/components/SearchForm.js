@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
@@ -23,18 +24,6 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 310,
     maxWidth: 310,
   },
-  searchform: {
-    display: 'grid',
-    gridTemplateAreas: '"type query app" "checkboxes checkboxes checkboxes"',
-    gridTemplateColumns: '1fr 1fr 1fr',
-    alignItems: 'end',
-    justifyItems: 'center',
-  },
-  checkboxes: {
-    gridArea: 'checkboxes',
-    display: 'grid',
-    gridTemplateAreas: '"a b"',
-  },
   paper: {
     padding: theme.spacing(2),
     textAlign: 'center',
@@ -44,10 +33,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2),
     backgroundColor: '#007CBA',
     width: '30%',
-  },
-  checkbox: {
-    marginTop: '20px',
-    fontSize: 10,
   },
 }));
 
@@ -163,8 +148,14 @@ const SearchForm = (props) => {
       <Paper className={classes.paper}>
         <div className={classes.root}>
           {/* Select field for selection of tumor type */}
-          <div className={classes.searchform}>
-            <div className={classes.type}>
+          <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="flex-end"
+            spacing={4}
+          >
+            <Grid item>
               <TextField
                 className={classes.textfield}
                 id="select-search-type"
@@ -182,8 +173,8 @@ const SearchForm = (props) => {
                   </MenuItem>
                 ))}
               </TextField>
-            </div>
-            <div className={classes.query}>
+            </Grid>
+            <Grid item>
               <TextField
                 className={classes.textfield}
                 className={classes.searchinput}
@@ -205,9 +196,9 @@ const SearchForm = (props) => {
                 }
                 onChange={(event) => handleInputChange(event.target.value)}
               />
-            </div>
+            </Grid>
             {/* Select box to allow selection of application for search action */}
-            <div className={classes.app}>
+            <Grid item>
               <TextField
                 className={classes.textfield}
                 id="select-application"
@@ -232,12 +223,19 @@ const SearchForm = (props) => {
                     </MenuItem>
                   ))}
               </TextField>
-            </div>
-            <div className={classes.checkboxes}>
-              {/* Checkbox to filter rows where data is published. It is commented out because we currently do not 
+            </Grid>
+          </Grid>
+
+          <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="flex-end"
+          >
+            {/* Checkbox to filter rows where data is published. It is commented out because we currently do not 
             have this value available in db to search. But this logic can be used when we can validate the published 
             state of a Sample. */}
-              {/* <FormControlLabel
+            {/* <FormControlLabel
               control={
                 <Checkbox
                   checked={isPublished}
@@ -250,41 +248,38 @@ const SearchForm = (props) => {
               label="is published"
               className={classes.checkbox}
             /> */}
-              {/* Check box to indicate exact tumor type match when searctype is tumor type. If searchtype is other than tumor type, this checkbox is hidden. */}
-              {searchtype && searchtype === 'tumor type' ? (
-                <FormControlLabel
-                  className={classes.checkbox}
-                  control={
-                    <Checkbox
-                      size="small"
-                      margin="dense"
-                      checked={exactMatch}
-                      onChange={() => setExactMatch(!exactMatch)}
-                      name="exactMatch"
-                    />
-                  }
-                  label="exact tumortype match"
-                />
-              ) : (
-                ''
-              )}
-              {/* Checkbox to filter rows that has fastq data values */}
+            {/* Check box to indicate exact tumor type match when searctype is tumor type. If searchtype is other than tumor type, this checkbox is hidden. */}
+            {searchtype && searchtype === 'tumor type' ? (
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={hasData}
                     size="small"
                     margin="dense"
-                    onChange={() => setHasData(!hasData)}
-                    name="hasDataCheckBox"
+                    checked={exactMatch}
+                    onChange={() => setExactMatch(!exactMatch)}
+                    name="exactMatch"
                   />
                 }
-                label="has fastq data"
-                className={classes.checkbox}
+                label="exact tumortype match"
               />
-            </div>
-          </div>
-
+            ) : (
+              ''
+            )}
+            {/* Checkbox to filter rows that has fastq data values */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hasData}
+                  size="small"
+                  margin="dense"
+                  onChange={() => setHasData(!hasData)}
+                  name="hasDataCheckBox"
+                />
+              }
+              label="has fastq data"
+              className={classes.checkbox}
+            />
+          </Grid>
           <Button
             type="submit"
             fullWidth
