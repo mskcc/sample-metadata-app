@@ -40,13 +40,10 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
-  loginText: {
-    color: 'blue',
-  },
   form: {
     width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
-    color: 'blue',
+    color: ' #007CBA',
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -130,9 +127,7 @@ const Login = (props) => {
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography className={classes.loginText} component="h1" variant="h5">
-          Sign in
-        </Typography>
+       
         <form className={classes.form} method="POST">
           <TextField
             variant="standard"

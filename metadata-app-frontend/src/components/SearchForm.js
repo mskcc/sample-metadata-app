@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
@@ -19,9 +20,9 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(1),
     },
   },
-  searchinput: {
-    width: '75%',
-    marginRight: '100',
+  textfield: {
+    minWidth: 310,
+    maxWidth: 310,
   },
   paper: {
     padding: theme.spacing(2),
@@ -32,10 +33,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(2),
     backgroundColor: '#007CBA',
     width: '30%',
-  },
-  checkbox: {
-    marginTop: '20px',
-    fontSize: 10,
   },
 }));
 
@@ -150,100 +147,91 @@ const SearchForm = (props) => {
     <div>
       <Paper className={classes.paper}>
         <div className={classes.root}>
-          <div>
-            <TextField
-              className={classes.searchinput}
-              fullWidth
-              margin="dense"
-              variant="standard"
-              label="enter search keyword(s)"
-              required
-              size="small"
-              value={userinput}
-              error={userinputError}
-              helperText="Enter (comma, space) separated search values mrn/patient id/tumor type/igo id/cmo id'"
-              onChange={(event) => handleInputChange(event.target.value)}
-            />
-          </div>
-
           {/* Select field for selection of tumor type */}
-          <div>
-            <TextField
-              id="select-tumor-type"
-              required
-              select
-              error={searchtypeError}
-              label="search type"
-              value={searchtype}
-              style={{ width: '20%' }}
-              onChange={(event) => handleSearchtypeChange(event.target.value)}
-              helperText="Please select search type"
-            >
-              {searchTypeValues.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            {/* Check box to indicate exact tumor type match when searctype is tumor type. If searchtype is other than tumor type, this checkbox is hidden. */}
-            {searchtype && searchtype === 'tumor type' ? (
-              <FormControlLabel
-                className={classes.checkbox}
-                control={
-                  <Checkbox
-                    size="small"
-                    margin="dense"
-                    checked={exactMatch}
-                    onChange={() => setExactMatch(!exactMatch)}
-                    name="exactMatch"
-                  />
-                }
-                label="exact tumortype match"
-              />
-            ) : (
-              ''
-            )}
-
-            {/* Select box to allow selection of application for search action */}
-            <TextField
-              id="select-application"
-              select
-              label="application type"
-              value={application}
-              onChange={(event) => handleApplicationChange(event.target.value)}
-              helperText="Please select search type"
-              style={{ width: '20%' }}
-              InputProps={{
-                minwidth: '15ch',
-              }}
-            >
-              <MenuItem key={'none'} value={'None'}>
-                {'None'}
-              </MenuItem>
-              {recipes &&
-                recipes.map((recipe) => (
-                  <MenuItem key={recipe} value={recipe}>
-                    {recipe}
+          <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="flex-end"
+            spacing={4}
+          >
+            <Grid item>
+              <TextField
+                className={classes.textfield}
+                id="select-search-type"
+                required
+                select
+                error={searchtypeError}
+                label="search type"
+                value={searchtype}
+                onChange={(event) => handleSearchtypeChange(event.target.value)}
+                helperText="Please select search type"
+              >
+                {searchTypeValues.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
                   </MenuItem>
                 ))}
-            </TextField>
+              </TextField>
+            </Grid>
+            <Grid item>
+              <TextField
+                className={classes.textfield}
+                className={classes.searchinput}
+                // fullWidth
+                margin="dense"
+                variant="standard"
+                label="enter search keyword(s)"
+                // placeholder="enter search keyword(s)"
+                required
+                rows={3}
+                // size="small"
+                multiline
+                value={userinput}
+                error={userinputError}
+                helperText={
+                  searchtype
+                    ? `Enter (comma or space) separated ${searchtype}s`
+                    : 'Enter (comma or space) separated serach values'
+                }
+                onChange={(event) => handleInputChange(event.target.value)}
+              />
+            </Grid>
+            {/* Select box to allow selection of application for search action */}
+            <Grid item>
+              <TextField
+                className={classes.textfield}
+                id="select-application"
+                select
+                label="application type"
+                value={application}
+                onChange={(event) =>
+                  handleApplicationChange(event.target.value)
+                }
+                helperText="Please select search type"
+                InputProps={{
+                  minwidth: '15ch',
+                }}
+              >
+                <MenuItem key={'none'} value={'None'}>
+                  {'None'}
+                </MenuItem>
+                {recipes &&
+                  recipes.map((recipe) => (
+                    <MenuItem key={recipe} value={recipe}>
+                      {recipe}
+                    </MenuItem>
+                  ))}
+              </TextField>
+            </Grid>
+          </Grid>
 
-            {/* Checkbox to filter rows that has fastq data values */}
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={hasData}
-                  size="small"
-                  margin="dense"
-                  onChange={() => setHasData(!hasData)}
-                  name="hasDataCheckBox"
-                />
-              }
-              label="has fastq data"
-              className={classes.checkbox}
-            />
-
+          <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="flex-end"
+          >
             {/* Checkbox to filter rows where data is published. It is commented out because we currently do not 
             have this value available in db to search. But this logic can be used when we can validate the published 
             state of a Sample. */}
@@ -260,8 +248,38 @@ const SearchForm = (props) => {
               label="is published"
               className={classes.checkbox}
             /> */}
-          </div>
-
+            {/* Check box to indicate exact tumor type match when searctype is tumor type. If searchtype is other than tumor type, this checkbox is hidden. */}
+            {searchtype && searchtype === 'tumor type' ? (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size="small"
+                    margin="dense"
+                    checked={exactMatch}
+                    onChange={() => setExactMatch(!exactMatch)}
+                    name="exactMatch"
+                  />
+                }
+                label="exact tumortype match"
+              />
+            ) : (
+              ''
+            )}
+            {/* Checkbox to filter rows that has fastq data values */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hasData}
+                  size="small"
+                  margin="dense"
+                  onChange={() => setHasData(!hasData)}
+                  name="hasDataCheckBox"
+                />
+              }
+              label="has fastq data"
+              className={classes.checkbox}
+            />
+          </Grid>
           <Button
             type="submit"
             fullWidth
