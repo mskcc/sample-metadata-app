@@ -475,6 +475,7 @@ def search():
     try:
         if request.method == "POST":
             search_data = request.get_json(silent=True)
+            print(search_data)
             search_keywords = search_data.get("search_keywords")
             search_type = search_data.get("search_type")
             exact_match = search_data.get("exact_match")
@@ -627,6 +628,7 @@ def search():
             return response
 
     except Exception as e:
+        print(traceback.print_stack(e))
         add_error_to_logs("Error: while serving search query: {}".format(repr(e)), "api")
         response = make_response(
             jsonify(success=False,

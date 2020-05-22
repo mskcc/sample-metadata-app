@@ -1,9 +1,10 @@
 ###############################################################HandsonTable Column configs #############################################################################
 
 clinicalColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
-                   'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                   'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
-                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'FastQ Data']
+                      'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
+                      'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                      'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set',
+                      'FastQ Data']
 clinicalColumns = [
 
     {
@@ -102,9 +103,10 @@ clinicalColumns = [
 ]
 
 nonClinicalColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
-                   'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                   'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
-                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'FastQ Data']
+                         'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
+                         'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                         'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set',
+                         'FastQ Data']
 
 nonClinicalColumns = [
     {
@@ -201,7 +203,6 @@ nonClinicalColumns = [
     }
 
 ]
-
 
 adminColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
                    'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
@@ -314,6 +315,10 @@ settings = {
     'colHeaders': True,
     'search': True,
     'dropdownMenu': ['filter_by_condition', 'filter_action_bar'],
+    'hiddenColumns': {
+        'indicators': True,
+        'columns': []
+    }
 }
 
 ########################################################################################################################################

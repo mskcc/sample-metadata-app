@@ -4,6 +4,7 @@ import concurrent.futures
 import cx_Oracle
 import requests
 import yaml
+import traceback
 from flask import json
 from requests.adapters import HTTPAdapter
 from urllib3 import PoolManager
@@ -17,12 +18,19 @@ config_options = yaml.safe_load(open(config, "r"))
 ENV = config_options['env']
 USER = config_options['username']
 PASSW = config_options['password']
+DELPHI_URL = None
 if ENV == 'dev':
     LIMS_API_ROOT = config_options['lims_end_point_dev']
 elif ENV == 'prod':
     LIMS_API_ROOT = config_options['lims_end_point_prod']
 elif ENV == 'local':
     LIMS_API_ROOT = config_options['lims_end_point_local']
+
+if ENV == 'dev' or ENV == 'local':
+    DELPHI_URL = config_options['delphi_url_dev']
+elif ENV == 'prod':
+    DELPHI_URL = config_options['delphi_url_prod']
+
 
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
@@ -68,22 +76,26 @@ def get_column_configs(role, username):
     :param role:
     :return: column configurations
     '''
-    settings = grid_configs.settings
-    user_view_config = UserViewConfig.query.filter_by(username=username).first()
-    if user_view_config:
-        hidden_columns = user_view_config.hidden_columns
-        hidden_columns_values = hidden_columns.split(",") if hidden_columns else []
-        hidden_column_arr = []
-        for item in hidden_columns_values:
-            hidden_column_arr.append(int(item))
-        settings["hiddenColumns"]["columns"] = hidden_column_arr
-    print(username, "view settings", settings)
-    if role == 'clinical':
-        return grid_configs.clinicalColHeaders, grid_configs.clinicalColumns, grid_configs.settings
-    elif role == 'admin':
-        return grid_configs.adminColHeaders, grid_configs.adminColumns, grid_configs.settings
-    elif role == 'user':
-        return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, grid_configs.settings
+    try:
+        settings = grid_configs.settings
+        user_view_config = UserViewConfig.query.filter_by(username=username).first()
+        if user_view_config:
+            hidden_columns = user_view_config.hidden_columns
+            hidden_columns_values = hidden_columns.split(",") if hidden_columns else []
+            hidden_column_arr = []
+            for item in hidden_columns_values:
+                hidden_column_arr.append(int(item))
+                settings["hiddenColumns"]["columns"] = hidden_column_arr
+        print(username, "view settings", settings)
+        if role == 'clinical':
+            return grid_configs.clinicalColHeaders, grid_configs.clinicalColumns, grid_configs.settings
+        elif role == 'admin':
+            return grid_configs.adminColHeaders, grid_configs.adminColumns, grid_configs.settings
+        elif role == 'user':
+            return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, grid_configs.settings
+    except Exception as e:
+        print(traceback.print_stack(e))
+        add_error_to_logs("")
 
 
 def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
@@ -92,10 +104,15 @@ def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
 
 
 def get_fastq_data(igo_id):
+    """
+    Method to get Fastq file path for Sample using IGO ID.
+    :return
+    """
+    url=None
     try:
         if not igo_id:
             return None
-        url = "http://delphi.mskcc.org:8080/ngs-stats/rundone/fastqsbyigoid/" + igo_id
+        url = "{}ngs-stats/rundone/fastqsbyigoid/{}".format(DELPHI_URL, igo_id)
         request = requests.get(url)
         data = json.loads(request.content.decode("utf-8", "strict"))
         fastq_data = []
@@ -103,10 +120,15 @@ def get_fastq_data(igo_id):
             fastq_data.append(item.get("fastq"))
         return ",".join(fastq_data)
     except Exception as e:
-        print("Error querying http://delphi.mskcc.org:8080/ngs-stats/rundone/fastqsbyigoid/{}: ".format(igo_id), repr(e))
+        print("Error querying delphi fastq endpoint {}: ".format(url), repr(e))
         return None
 
+
 def get_sample_status(igo_id):
+    """
+    Method to get current LIMS Sample status IGO ID.
+    :return
+    """
     try:
         r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleStatus?igoId={}".format(igo_id),
                   auth=(USER, PASSW), verify=False)
@@ -117,6 +139,10 @@ def get_sample_status(igo_id):
         return None
 
 def create_sample_object(db_sample_data):
+    """
+    Method to create Sample object to send to the frontend.
+    :return
+    """
     status = get_sample_status(db_sample_data.igo_id)
     fastq = get_fastq_data(db_sample_data.igo_id)
     sample_object = SampleData(
@@ -151,6 +177,10 @@ def create_sample_object(db_sample_data):
 
 
 def get_sample_objects(db_results, **kwargs):
+    """
+    Method to create Sample objects and filter based on parameters selected by user on frontend.
+    :return
+    """
     sample_objects = []
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = list(executor.map(create_sample_object, db_results))
@@ -159,6 +189,7 @@ def get_sample_objects(db_results, **kwargs):
         sample_objects = list(filter(lambda x: x.recipe.lower() == kwargs.get("application").lower(), sample_objects))
     if "has_data" in kwargs:
         sample_objects = list(filter(lambda x: x.fastq_data, sample_objects))
+    # is_published filter is not valid at the moment, but soon will be hopefully.
     # if "is_published" in kwargs:
     #     sample_objects = list(filter(lambda x: x.fastq_data == "true", sample_objects))
     return sample_objects
