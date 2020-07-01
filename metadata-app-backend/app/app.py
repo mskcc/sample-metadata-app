@@ -193,12 +193,16 @@ def get_metadata():
         # check if user has passed timestamp value in parameter if present then grab that value
         if request.args.get('timestamp') is not None:
             timestamp = request.args.get('timestamp')
+            date_start = datetime.fromtimestamp(timestamp / 1000.0)
+            timestamp_end = time.mktime((date_start + timedelta(
+                days=365)).timetuple()) * 1000.0
         else:
             # if timestamp is not present generate one for 1.1 days in the past.
             timestamp = time.mktime((datetime.datetime.today() - timedelta(
                 days=1.1)).timetuple()) * 1000
+
         # query LimsRest endpoint
-        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(int(timestamp)),
+        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestampStart=" + str(int(timestamp)),
                   auth=(USER, PASSW), verify=False)
         data = r.content.decode("utf-8", "strict")
 
@@ -237,10 +241,11 @@ def get_mrn(connection, cmo_id):
             mrn, dmp_id = row
             # we need only first record. break loop after first iteration is done.
             break
-        add_to_logs("get mrn -> mrn and dmp_id: {}, {}".format(mrn, dmp_id))
+        add_to_logs("get mrn -> mrn and dmp_id: {}, {}".format(mrn, dmp_id), "api")
         cursor.close()
         return mrn, dmp_id
     except Exception as e:
+        print(traceback.print_exc())
         add_error_to_logs("Error: CRDB query failed. {}".format(repr(e)), "api")
         return None, None
 
@@ -372,6 +377,7 @@ def save_to_db(data):
         connection.close()
         return new_record_ids  # return list of new Sample record ids created and saved to db
     except Exception as e:
+        print(traceback.print_exc())
         add_error_to_logs("Error: while saving new records to db: {}".format(repr(e)), "api")
 
 
@@ -485,6 +491,7 @@ def search():
             user_role = search_data.get("user_role")
             current_user = get_jwt_identity()
             col_headers, column_defs, settings = get_column_configs(user_role, current_user)
+            print (settings)
             # log search event in AppLog table.
             add_to_logs("User data search using parameters: {}.".format(search_data), user=current_user)
             # create empty response object.

@@ -3,16 +3,16 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import LoginView from './views/LoginView';
 import HomeView from './views/HomeView';
-import { BASE_ROUTE } from './configs/react.configs';
+import { BASE_ROUTE} from './configs/react.configs';
 
 class App extends Component {
   render() {
     return (
       <MuiThemeProvider theme={theme}>
-        <Router>
+        <Router basename={BASE_ROUTE}>
           <Switch>
-            <Route path={`${BASE_ROUTE}/`} exact component={LoginView} />
-            <Route path={`${BASE_ROUTE}/home`} exact component={HomeView} />
+            <Route path="/" exact component={LoginView} />
+            <Route path="/home" exact component={HomeView} />
           </Switch>
         </Router>
       </MuiThemeProvider>

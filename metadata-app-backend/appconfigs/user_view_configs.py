@@ -2,9 +2,9 @@
 
 clinicalColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
                       'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                      'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                      'Specimen Type', 'Sex', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
                       'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set',
-                      'FastQ Data']
+                      'Data Access','FastQ Data']
 clinicalColumns = [
 
     {
@@ -60,7 +60,7 @@ clinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'gender',
+        'data': 'sex',
         'readOnly': True
     },
     {
@@ -96,6 +96,10 @@ clinicalColumns = [
         'readOnly': True
     },
     {
+        'data': 'data_access',
+        'readOnly': True
+    },
+    {
         'data': 'fastq_data',
         'readOnly': True
     }
@@ -104,9 +108,9 @@ clinicalColumns = [
 
 nonClinicalColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
                          'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                         'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                         'Specimen Type', 'Sex', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
                          'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set',
-                         'FastQ Data']
+                         'Data Access', 'FastQ Data']
 
 nonClinicalColumns = [
     {
@@ -162,7 +166,7 @@ nonClinicalColumns = [
         'readOnly': True
     },
     {
-        'data': 'gender',
+        'data': 'sex',
         'readOnly': True
     },
     {
@@ -198,6 +202,10 @@ nonClinicalColumns = [
         'readOnly': True
     },
     {
+        'data': 'data_access',
+        'readOnly': True
+    },
+    {
         'data': 'fastq_data',
         'readOnly': True
     }
@@ -206,8 +214,8 @@ nonClinicalColumns = [
 
 adminColHeaders = ['MRN', 'IGO ID', 'Investigator Sample ID', 'Sample Type', 'Species', 'CMO Patient ID',
                    'CMO Sample ID', 'DMP ID', 'Preservation', 'Tumor or Normal', 'Tissue Source', 'Sample Origin',
-                   'Specimen Type', 'Gender', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
-                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'FastQ Data']
+                   'Specimen Type', 'Sex', 'Parent Tumor Type', 'Tumor Type', 'Tissue Location',
+                   'Ancestor Sample ID', 'Sample Status', 'Do Not Use', 'Recipe/Application', 'Bait Set', 'Data Access', 'FastQ Data']
 adminColumns = [
     {
         'data': 'mrn',
@@ -262,7 +270,7 @@ adminColumns = [
         'readOnly': True
     },
     {
-        'data': 'gender',
+        'data': 'sex',
         'readOnly': True
     },
     {
@@ -298,6 +306,10 @@ adminColumns = [
         'readOnly': True
     },
     {
+        'data': 'data_access',
+        'readOnly': True
+    },
+    {
         'data': 'fastq_data',
         'readOnly': True
     }
@@ -309,7 +321,7 @@ settings = {
     'width': '100%',
     'height': 500,
     'colWidths': [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
-                  200, 200, 200, 200, 200, 200],
+                  200, 200, 200, 200, 200, 200, 200],
     'manualColumnResize': True,
     'rowHeaders': True,
     'colHeaders': True,

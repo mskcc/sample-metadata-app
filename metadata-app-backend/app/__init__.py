@@ -25,16 +25,18 @@ from utils.utils import get_user_title, get_user_group, get_user_fullname, get_c
 app = Flask(__name__)
 
 ###################################### register blueprints ##########################################
-
 from outbound_api.outbound_api import outbound_api
+
 app.register_blueprint(outbound_api, url_prefix="/api")
 
 from outbound_api.outbound_api import SWAGGER_URL, SWAGGERUI_BLUEPRINT
-app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+#print(SWAGGER_URL, SWAGGERUI_BLUEPRINT)
 ####################################### app configuration settings ###################################
 
 config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../appconfigs/lims_user_config")
+print(config)
 config_options = yaml.safe_load(open(config, "r"))
 USER = config_options['username']
 PASSW = config_options['password']

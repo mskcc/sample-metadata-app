@@ -9,8 +9,8 @@
             "email":"zzPDL_SKI_IGO_DATA@mskcc.org"
         }
     },
-    "host":"localhost:5000",
-    "basePath":"/api",
+    "host":"delphi.mskcc.org",
+    "basePath":"/sample-metadata-dev-api/api/",
     "tags":[
         {
             "name":"search_metadata",

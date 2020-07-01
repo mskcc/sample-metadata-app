@@ -79,28 +79,40 @@ def get_column_configs(role, username):
     try:
         settings = grid_configs.settings
         user_view_config = UserViewConfig.query.filter_by(username=username).first()
+        print(user_view_config)
         if user_view_config:
+            print("is user view config")
             hidden_columns = user_view_config.hidden_columns
             hidden_columns_values = hidden_columns.split(",") if hidden_columns else []
             hidden_column_arr = []
-            for item in hidden_columns_values:
-                hidden_column_arr.append(int(item))
+            if not hidden_columns_values:
                 settings["hiddenColumns"]["columns"] = hidden_column_arr
-        print(username, "view settings", settings)
+            else:
+                for item in hidden_columns_values:
+                    print(item)
+                    hidden_column_arr.append(int(item))
+                    settings["hiddenColumns"]["columns"] = hidden_column_arr
+                print(settings)
+            #print(username, "view settings", settings)
         if role == 'clinical':
-            return grid_configs.clinicalColHeaders, grid_configs.clinicalColumns, grid_configs.settings
+            return grid_configs.clinicalColHeaders, grid_configs.clinicalColumns, settings
         elif role == 'admin':
-            return grid_configs.adminColHeaders, grid_configs.adminColumns, grid_configs.settings
+            return grid_configs.adminColHeaders, grid_configs.adminColumns, settings
         elif role == 'user':
-            return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, grid_configs.settings
+            return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, settings
     except Exception as e:
         print(traceback.print_stack(e))
         add_error_to_logs("")
 
 
 def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
-    conn = cx_Oracle.connect(CRDB_UN, CRDB_PW, CRDB_URL)
-    return conn
+    try:
+        conn = cx_Oracle.connect(CRDB_UN, CRDB_PW, CRDB_URL)
+        return conn
+    except Exception as e:
+        print(traceback.print_exc())
+        add_error_to_logs(e)
+        return None
 
 
 def get_fastq_data(igo_id):
@@ -173,6 +185,7 @@ def create_sample_object(db_sample_data):
         bait_set=db_sample_data.bait_set,
         fastq_data=fastq
     )
+    print(sample_object.data_access)
     return sample_object
 
 
@@ -192,6 +205,7 @@ def get_sample_objects(db_results, **kwargs):
     # is_published filter is not valid at the moment, but soon will be hopefully.
     # if "is_published" in kwargs:
     #     sample_objects = list(filter(lambda x: x.fastq_data == "true", sample_objects))
+    print(sample_objects[0].data_access)
     return sample_objects
 
 

@@ -46,11 +46,10 @@ const Home = (props) => {
   const colHeaders = searchResults.data ? searchResults.data.col_headers : null;
   const colDefs = searchResults.data ? searchResults.data.column_defs : null;
   const settings = searchResults.data ? searchResults.data.settings : null;
-
   //validate if the user is logged in. Redirect to login page if user is not logged in.
   useEffect(() => {
     if (!access_token) {
-      props.history.push('/');
+      props.history.push("/");
     }
   });
 

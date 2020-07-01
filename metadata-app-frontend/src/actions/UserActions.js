@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BASE_URL, requestHeaders, BASE_ROUTE } from '../configs/react.configs';
+import { BASE_URL, requestHeaders} from '../configs/react.configs';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import {
@@ -114,14 +114,12 @@ const userLogOutFailure = (error) => {
 
 //method to make http call to log-out user.
 export const logout = (data, headers) => {
-  console.log(data, headers);
   return (dispatch) => {
     dispatch(userLogOutBegin());
     axios
       .post(BASE_URL + 'logout', data, headers)
       .then((res) => {
         if (res.data.success) {
-          console.log(res.data);
           dispatch(userLogOutSuccess(res.data));
           localStorage.clear();
           localStorage.removeItem('persist:root');
@@ -175,7 +173,7 @@ export const endsession = (data, configs, history) => {
           dispatch(endSessionSuccess(res.data));
           localStorage.clear();
           localStorage.removeItem('persist:root');
-          history.push(`${BASE_ROUTE}/`);
+          history.push("/");
           Swal.fire(
             'Session ended',
             'Session ended due to inactivity. Please log in again',

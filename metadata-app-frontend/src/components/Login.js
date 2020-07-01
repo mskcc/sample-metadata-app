@@ -68,14 +68,13 @@ const Login = (props) => {
   const user = useSelector((state) => state.user);
   const accessToken = user && user.data ? user.data.access_token : null;
   const isFetching = user ? user.isFetching : false;
-
   //dispatch action constant declaration
   const dispatchLogin = useDispatch();
 
   //use effect to validate user token. If token is present, redirect user to homepage.
   useEffect(() => {
     if (accessToken) {
-      props.history.push('/home');
+      props.history.push("/home");
     }
   });
 

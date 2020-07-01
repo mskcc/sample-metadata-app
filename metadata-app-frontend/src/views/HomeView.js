@@ -13,7 +13,6 @@ class HomeView extends Component {
       }
     onIdle = (e) => {
         console.log('user is idle', e);
-        console.log(this.props.user);
         var config = {
           headers: {
             'Content-Type': 'application/json',

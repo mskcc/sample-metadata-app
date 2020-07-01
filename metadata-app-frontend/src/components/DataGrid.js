@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { UserViewConfigDialog } from './UserViewConfigDialog';
 import { saveChanges } from '../actions/SaveActions';
+import { ADMIN_EMAIL } from '../configs/react.configs';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,6 +34,13 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     backgroundColor: '#007CBA',
   },
+  useralert: {
+    color: 'red',
+    textAlign: 'center',
+    fontFamily: 'sans-serif',
+    fontSize: 15,
+    margin: 20,
+  },
 }));
 
 const DataGrid = (props) => {
@@ -48,7 +56,6 @@ const DataGrid = (props) => {
   const [saveChangesDisabled, setSaveChangesDisabled] = useState(true); // state variable used to set save button enabled or disabled
   const [dataRowsEdited, setDataRowsEdited] = useState(new Set()); // state variable to hold the data rows where one of the column values is edited.
   const [hiddenColumnsChanged, setHiddenColumnsChanged] = useState(false); // state variable to hold hide/show column selections by user.
-
   const user = useSelector((state) => state.user); //get user data from redux state.
   const userRole =
     user && user.data && user.data.access_token ? user.data.role : null; //get user role.
@@ -56,7 +63,7 @@ const DataGrid = (props) => {
     user && user.data && user.data.access_token ? user.data.access_token : null; //get access token for server requests.
 
   const dispatchSave = useDispatch(); //initialize variable to dispatch action to save edited data rows.
-
+  console.log(settings);
   // this is the method to set the grid height equivalent to 50% of the browser window size.
   const setGridHeight = () => {
     return window.innerHeight * 0.5;
@@ -100,7 +107,6 @@ const DataGrid = (props) => {
     const rowsToSave = gridData.filter((item) => {
       return dataRowsEdited.has(item.id);
     });
-    console.log(rowsToSave);
     const headers = {
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +119,6 @@ const DataGrid = (props) => {
     //disable the save changes button after dispatching saveChanges action.
     setSaveChangesDisabled(true);
     setDataRowsEdited(new Set());
-    console.log(saveChangesDisabled);
   };
 
   // Method to update the hiddenColumn values in handsontable settings as user
@@ -127,6 +132,13 @@ const DataGrid = (props) => {
 
   return (
     <div className={classes.root}>
+      {userRole && userRole === 'user' && 
+        <div className={classes.useralert}>
+          You are logged in as a regular user. If you are a clinician, please
+          email administrators at '{ADMIN_EMAIL}' to get access to
+          clinical data.
+        </div>
+      }
       <Paper className={classes.paper}>
         <div className={classes.filter}>
           {/*Text field above the grid to filter grid data based on text field value. */}

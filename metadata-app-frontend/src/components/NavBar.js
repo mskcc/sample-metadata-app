@@ -52,7 +52,7 @@ const NavBar = () => {
     };
     dispatch(logout(data, headers));
     if (!accessToken) {
-      props.history.push('/');
+      props.history.push("/");
     }
   };
 

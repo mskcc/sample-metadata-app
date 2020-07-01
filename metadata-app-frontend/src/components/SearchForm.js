@@ -67,7 +67,7 @@ const SearchForm = (props) => {
   // validate if the user is logged in. Redirect to login page if user is not logged in.
   useEffect(() => {
     if (!accessToken) {
-      props.history.push('/');
+      props.history.push("/");
     }
   });
 
@@ -177,7 +177,6 @@ const SearchForm = (props) => {
             <Grid item>
               <TextField
                 className={classes.textfield}
-                className={classes.searchinput}
                 // fullWidth
                 margin="dense"
                 variant="standard"

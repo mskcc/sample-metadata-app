@@ -12,7 +12,15 @@ outbound_api = Blueprint('outbound_api', __name__)
 
 ### swagger specific ###
 SWAGGER_URL = '/api'
-API_URL = './static/dev/swagger.json' if ENV == "dev" or ENV == "local" else './static/prod/swagger.json'
+API_URL = None
+if ENV == "dev":
+    API_URL= 'https://delphi.mskcc.org/sample-metadata-dev-api/api/static/dev/swagger.json'
+if ENV == "local":
+    API_URL= 'http://localhost:5000/api/static/local/swagger.json'
+if ENV == "prod":
+    API_URL= 'https://delphi.mskcc.org/sample-metadata-api/api/static/prod/swagger.json'
+
+print(API_URL)
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
