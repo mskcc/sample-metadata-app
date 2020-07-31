@@ -44,11 +44,8 @@ export const UserViewConfigDialog = (props) => {
   const user = useSelector((state) => state.user);
   const accessToken =
     user && user.data && user.data.access_token ? user.data.access_token : null;
-  console.log(props);
   //initialize columns to hide using values from props.
   useEffect(() => {
-    console.log(columnsToHide);
-    console.log(hiddenColumns);
     if (columnsToHide && !hiddenColumns) {
       let hideColumnConfigs = columnNames.map((item, index) => {
         let obj = {};
@@ -57,14 +54,10 @@ export const UserViewConfigDialog = (props) => {
         obj.isChecked = columnsToHide.includes(index);
         return obj;
       });
-      console.log(hideColumnConfigs);
       setHiddenColumns(hideColumnConfigs);
       setChecked(true);
-      console.log(hideColumnConfigs);
     }
   }, [columnNames, columnsToHide, hiddenColumns]);
-
-  console.log(hiddenColumns);
   //to toggle dialog component
   const handleDialogState = () => {
     setOpen(true);

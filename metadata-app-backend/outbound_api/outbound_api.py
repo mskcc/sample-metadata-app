@@ -1,4 +1,5 @@
 import re
+import traceback
 from functools import wraps
 
 from flask import Blueprint, request, make_response, jsonify, json, send_from_directory
@@ -128,7 +129,7 @@ def search_metadata():
             response = make_response(jsonify(data=None, success=False, error=True, message=message), 400, None)
             return response
     except Exception as e:
-        message = "Error : {}".format(repr(e))
+        message = "Error : {}".format(traceback.print_exc())
         add_error_to_logs(message, "api")
         response = make_response(jsonify(data=None, success=False, message="Internal server error."), 500, None)
         return response

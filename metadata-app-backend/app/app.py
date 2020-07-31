@@ -2,7 +2,8 @@ import re
 import traceback
 from app import *
 from dbmodels.dbmodels import UserViewConfig
-from utils.utils import get_column_configs, get_sample_objects, get_fastq_data, s, add_to_logs, add_error_to_logs
+from utils.utils import get_column_configs, get_sample_objects, get_fastq_data, s, add_to_logs, add_error_to_logs, \
+    add_error_to_db_logs
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -21,7 +22,7 @@ def get_lims_recipes():
     Method to get recipe list from LIMS to populate recipe selection field on front end.
     :return
     """
-    r = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Recipe",
+    r = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Metadatadb CMO Recipes",
               auth=(USER, PASSW), verify=False)
     data = r.content.decode("utf-8", "strict")
     return json.loads(data)
@@ -106,7 +107,7 @@ def login():
                 200, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
             message = "Invalid username or password."
-            add_error_to_logs(message, username)
+            add_error_to_db_logs(message, username)
             return make_response(response)
         except ldap.OPERATIONS_ERROR as e:
             response = make_response(
@@ -122,7 +123,7 @@ def login():
                 ),
                 500, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
-            message = "ldap OPERATION ERROR occured. {}".format(repr(e))
+            message = "ldap OPERATION ERROR occured. {}".format(traceback.print_exc())
             add_error_to_logs(message, username)
             return make_response(response)
 
@@ -168,12 +169,12 @@ def logout():
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
     except Exception as e:
-        mesage = "Error while logging out user {}: {}".format(current_user, repr(e))
+        mesage = "Error while logging out user {}: {}".format(current_user, traceback.print_exc())
         add_error_to_logs(mesage, current_user)
         response = make_response(
             jsonify(
                 success=False,
-                message="Error while logging out user {}: {}".format(current_user, repr(e)),
+                message="Error while logging out user {}: {}".format(current_user, traceback.print_exc()),
                 error=True),
             401, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -184,26 +185,25 @@ def logout():
 def get_metadata():
     """
     @:param timestamp
-    Method to get 'Sample' metadata from LimsRest endpoint 'getSampleMetadata' using a 'timestamp' as parameter.
-    If timestamp parameter passed is 'None' then this method generates a timestamp and passes to LimsRest endpoint.
-    The end point returns metadata for all the child samples of a request created after the given timestamp.
+    @:param projectId
+    Method to get 'Sample' metadata from LimsRest endpoint 'getSampleMetadata' using a 'timestamp' and/or 'projectId'
+    as parameter. If timestamp parameter passed is 'None' then this method generates a timestamp and passes to LimsRest
+    endpoint. The end point returns metadata for all the child samples of a request created after the given timestamp.
     :return: List of SampleMetadata objects
     """
     try:
         # check if user has passed timestamp value in parameter if present then grab that value
+        timestamp = None
+        projectId = None
         if request.args.get('timestamp') is not None:
             timestamp = request.args.get('timestamp')
-            date_start = datetime.fromtimestamp(timestamp / 1000.0)
-            timestamp_end = time.mktime((date_start + timedelta(
-                days=365)).timetuple()) * 1000.0
         else:
             # if timestamp is not present generate one for 1.1 days in the past.
             timestamp = time.mktime((datetime.datetime.today() - timedelta(
                 days=1.1)).timetuple()) * 1000
-
         # query LimsRest endpoint
-        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestampStart=" + str(int(timestamp)),
-                  auth=(USER, PASSW), verify=False)
+        print(timestamp)
+        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestampStart=" + str(int(timestamp)), auth=(USER, PASSW), verify=False)
         data = r.content.decode("utf-8", "strict")
 
         # to record how many new Sample records were added to the database.
@@ -214,7 +214,8 @@ def get_metadata():
         return response
 
     except Exception as e:
-        add_error_to_logs("Error {}".format(str(repr(e))), "api")
+        message = "Error {}".format(traceback.print_exc())
+        add_error_to_logs(message, "api")
         response = make_response(jsonify(data="", error="There was a problem processing the request."), 500, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
@@ -246,7 +247,7 @@ def get_mrn(connection, cmo_id):
         return mrn, dmp_id
     except Exception as e:
         print(traceback.print_exc())
-        add_error_to_logs("Error: CRDB query failed. {}".format(repr(e)), "api")
+        add_error_to_logs("Error: CRDB query failed. {}".format(traceback.print_exc()), "api")
         return None, None
 
 
@@ -266,7 +267,7 @@ def get_cmo_id_for_mrn(cmo_id):
                 return cmo_id_for_mrn
         return None
     except Exception as e:
-        add_error_to_logs("Error: {}".format(repr(e)), "api")
+        add_error_to_logs("Error: {}".format(traceback.print_exc()), "api")
         return None
 
 
@@ -378,7 +379,7 @@ def save_to_db(data):
         return new_record_ids  # return list of new Sample record ids created and saved to db
     except Exception as e:
         print(traceback.print_exc())
-        add_error_to_logs("Error: while saving new records to db: {}".format(repr(e)), "api")
+        add_error_to_logs("Error: while saving new records to db: {}".format(traceback.print_exc()), "api")
 
 
 def update_record(sample_record, item, connection):
@@ -470,7 +471,7 @@ def update_record(sample_record, item, connection):
                         new_sample_fastq_data.id), "api")
 
     except Exception as e:
-        message = "Error: while adding new records to db: {}".format(repr(e))
+        message = "Error: while adding new records to db: {}".format(traceback.print_exc())
         add_error_to_logs(message, "api")
 
 
@@ -635,8 +636,8 @@ def search():
             return response
 
     except Exception as e:
-        print(traceback.print_stack(e))
-        add_error_to_logs("Error: while serving search query: {}".format(repr(e)), "api")
+        print(traceback.print_exc(e))
+        add_error_to_logs("Error: while serving search query: {}".format(traceback.print_exc()), "api")
         response = make_response(
             jsonify(success=False,
                     data=None,
@@ -678,7 +679,7 @@ def save_user_view_configs():
             add_to_logs("Successfully saved data.", username)
             return response
     except Exception as e:
-        message = "while updating data: {}".format(repr(e))
+        message = "while updating data: {}".format(traceback.print_exc())
         add_error_to_logs(message, "api")
         response = make_response(
             jsonify(
@@ -732,7 +733,7 @@ def save_view_configs():
                     return response
 
     except Exception as e:
-        message = "Error while updating user view configs: {}".format(repr(e))
+        message = "Error while updating user view configs: {}".format(traceback.print_exc())
         add_error_to_logs(message, "api")
         response = make_response(
             jsonify(

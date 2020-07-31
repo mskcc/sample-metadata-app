@@ -101,8 +101,8 @@ def get_column_configs(role, username):
         elif role == 'user':
             return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, settings
     except Exception as e:
-        print(traceback.print_stack(e))
-        add_error_to_logs("")
+        print(traceback.print_exc())
+        add_error_to_logs("Error getting column configs {}".format(traceback.print_exc()))
 
 
 def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
@@ -110,8 +110,8 @@ def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
         conn = cx_Oracle.connect(CRDB_UN, CRDB_PW, CRDB_URL)
         return conn
     except Exception as e:
-        print(traceback.print_exc())
-        add_error_to_logs(e)
+        print("Error connecting to CRDB {}".format(traceback.print_exc))
+        add_error_to_logs("Error connecting to CRDB {}".format(traceback.print_exc()), "api")
         return None
 
 
@@ -132,7 +132,9 @@ def get_fastq_data(igo_id):
             fastq_data.append(item.get("fastq"))
         return ",".join(fastq_data)
     except Exception as e:
-        print("Error querying delphi fastq endpoint {}: ".format(url), repr(e))
+        print("Error querying delphi fastq endpoint {}: ".format(url), traceback.print_exc())
+        message = "Error querying delphi fastq endpoint {} , {}: ".format(url, traceback.print_exc())
+        add_error_to_logs(message, "api")
         return None
 
 
@@ -147,7 +149,9 @@ def get_sample_status(igo_id):
         data = r.content.decode("utf-8", "strict")
         return data
     except Exception as e:
-        print("Error querying /LimsRest/getSampleStatus?igoId={} endpoint: ".format(igo_id), repr(e))
+        err_message = "Error querying /LimsRest/getSampleStatus?igoId={} endpoint: ".format(igo_id), traceback.print_exc()
+        add_error_to_logs(err_message, "api")
+        print(err_message)
         return None
 
 def create_sample_object(db_sample_data):
@@ -205,7 +209,8 @@ def get_sample_objects(db_results, **kwargs):
     # is_published filter is not valid at the moment, but soon will be hopefully.
     # if "is_published" in kwargs:
     #     sample_objects = list(filter(lambda x: x.fastq_data == "true", sample_objects))
-    print(sample_objects[0].data_access)
+    if sample_objects:
+        print(sample_objects[0].data_access)
     return sample_objects
 
 
@@ -220,8 +225,14 @@ def add_to_logs(message, user):
 
 def add_error_to_logs(message, user):
     """
-    Method to important error messages to different logs.
+    Method to important error messages to app logs.
+    """
+    print(message, "User: {}".format(user))
+    LOG.error(message + " User: {}".format(user))
+
+def add_error_to_db_logs(message, user):
+    """
+    Method to important error messages to db logs table.
     """
     print(message, "User: {}".format(user))
     AppLog.error(message=message, user=user)
-    LOG.error(message + " User: {}".format(user))
