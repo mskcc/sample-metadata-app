@@ -7,6 +7,8 @@ import yaml
 import traceback
 from flask import json
 from requests.adapters import HTTPAdapter
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from urllib3 import PoolManager
 import appconfigs.user_view_configs as grid_configs
 from dbmodels.dbmodels import SampleData, UserViewConfig, AppLog
@@ -100,7 +102,7 @@ def get_column_configs(role, username):
             return grid_configs.adminColHeaders, grid_configs.adminColumns, settings
         elif role == 'user':
             return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, settings
-    except Exception as e:
+    except Exception:
         print(traceback.print_exc())
         add_error_to_logs("Error getting column configs {}".format(traceback.print_exc()))
 
@@ -109,7 +111,7 @@ def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
     try:
         conn = cx_Oracle.connect(CRDB_UN, CRDB_PW, CRDB_URL)
         return conn
-    except Exception as e:
+    except Exception:
         print("Error connecting to CRDB {}".format(traceback.print_exc))
         add_error_to_logs("Error connecting to CRDB {}".format(traceback.print_exc()), "api")
         return None
@@ -131,7 +133,7 @@ def get_fastq_data(igo_id):
         for item in data:
             fastq_data.append(item.get("fastq"))
         return ",".join(fastq_data)
-    except Exception as e:
+    except Exception:
         print("Error querying delphi fastq endpoint {}: ".format(url), traceback.print_exc())
         message = "Error querying delphi fastq endpoint {} , {}: ".format(url, traceback.print_exc())
         add_error_to_logs(message, "api")
@@ -148,7 +150,7 @@ def get_sample_status(igo_id):
                   auth=(USER, PASSW), verify=False)
         data = r.content.decode("utf-8", "strict")
         return data
-    except Exception as e:
+    except Exception:
         err_message = "Error querying /LimsRest/getSampleStatus?igoId={} endpoint: ".format(igo_id), traceback.print_exc()
         add_error_to_logs(err_message, "api")
         print(err_message)
@@ -181,7 +183,7 @@ def create_sample_object(db_sample_data):
         tumor_type=db_sample_data.tumor_type,
         tissue_location=db_sample_data.tissue_location,
         ancestor_sample=db_sample_data.ancestor_sample,
-        sample_status= status,
+        sample_status=status,
         lab_head=db_sample_data.lab_head,
         data_access=db_sample_data.data_access,
         do_not_use=str(bool(db_sample_data.do_not_use)).lower(),
@@ -189,7 +191,6 @@ def create_sample_object(db_sample_data):
         bait_set=db_sample_data.bait_set,
         fastq_data=fastq
     )
-    print(sample_object.data_access)
     return sample_object
 
 
@@ -203,14 +204,10 @@ def get_sample_objects(db_results, **kwargs):
         results = list(executor.map(create_sample_object, db_results))
         sample_objects.extend(list(results))
     if "application" in kwargs and kwargs.get("application") != 'None':
-        sample_objects = list(filter(lambda x: x.recipe.lower() == kwargs.get("application").lower(), sample_objects))
+        print(kwargs.get("application"))
+        sample_objects = list(filter(lambda x: x.recipe.lower() == kwargs.get("application")[0].lower(), sample_objects))
     if "has_data" in kwargs:
         sample_objects = list(filter(lambda x: x.fastq_data, sample_objects))
-    # is_published filter is not valid at the moment, but soon will be hopefully.
-    # if "is_published" in kwargs:
-    #     sample_objects = list(filter(lambda x: x.fastq_data == "true", sample_objects))
-    if sample_objects:
-        print(sample_objects[0].data_access)
     return sample_objects
 
 
@@ -219,7 +216,6 @@ def add_to_logs(message, user):
     Method to important info messages to different logs.
     """
     print(message, "User: {}".format(user))
-    AppLog.info(message=message, user=user)
     LOG.info(message + " User: {}".format(user))
 
 
@@ -230,9 +226,18 @@ def add_error_to_logs(message, user):
     print(message, "User: {}".format(user))
     LOG.error(message + " User: {}".format(user))
 
+
+def add_to_db_logs(message, user):
+    """
+    Method to add important info messages to db AppLog table.
+    """
+    print(message, "User: {}".format(user))
+    AppLog.info(message=message, user=user)
+
+
 def add_error_to_db_logs(message, user):
     """
-    Method to important error messages to db logs table.
+    Method to important error messages to db AppLog table.
     """
     print(message, "User: {}".format(user))
     AppLog.error(message=message, user=user)

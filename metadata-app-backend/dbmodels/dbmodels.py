@@ -48,7 +48,7 @@ class Sample(db.Model):
     tumor_type = db.Column(db.String(300))
     tissue_location = db.Column(db.String(300))
     ancestor_sample = db.Column(db.String(300))
-    sample_status = db.Column(db.String(300))
+    #sample_status = db.Column(db.String(300))
     lab_head = db.Column(db.String(300))
     data_access = db.Column(db.String(300), default="Restricted")
     do_not_use = db.Column(db.Integer)
@@ -56,39 +56,37 @@ class Sample(db.Model):
     created_by = db.Column(db.String(300), default="api")
     date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
     updated_by = db.Column(db.String(300), default="api")
-    assays = db.relationship('Assay', backref='sample', lazy=True)
-    fastq_data = db.relationship('Data', backref='sample', lazy=True)
+    assay = db.Column(db.Integer, db.ForeignKey('assay.id'), index=True)
+    baitset = db.Column(db.Integer, db.ForeignKey('baitset.id'), index=True)
 
 
 class Assay(db.Model):
     """
-    DB Model for Assay object. Has One to One relationship with Sample object.
+    DB Model for Assay object. Has One to Many relationship with Sample object.
     """
     __versioned__ = {}
     __tablename__ = 'assay'
     id = db.Column(db.Integer, primary_key=True, unique=True, index=True)
-    id_sample = db.Column(db.Integer, db.ForeignKey('sample.id'), index=True)
     recipe = db.Column(db.String(300))
+    date_created = db.Column(db.DateTime, default=datetime.datetime.now)
+    created_by = db.Column(db.String(300), default="api")
+    date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_by = db.Column(db.String(300), default="api")
+    samples = db.relationship('Sample', backref='sample_assay', lazy='joined')
+
+class Baitset(db.Model):
+    """
+    DB Model for Baitset object. Has One to Many relationship with Sample object.
+    """
+    __versioned__ = {}
+    __tablename__ = 'baitset'
+    id = db.Column(db.Integer, primary_key=True, unique=True, index=True)
     bait_set = db.Column(db.String(300))
     date_created = db.Column(db.DateTime, default=datetime.datetime.now)
     created_by = db.Column(db.String(300), default="api")
     date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
     updated_by = db.Column(db.String(300), default="api")
-
-
-class Data(db.Model):
-    """
-    DB Model for Data object. Has One to One relationship with Sample object.
-    """
-    __versioned__ = {}
-    __tablename__ = 'data'
-    id = db.Column(db.Integer, primary_key=True, unique=True, index=True)
-    id_sample = db.Column(db.Integer, db.ForeignKey('sample.id'), index=True)
-    fastq_path = db.Column(db.Text)
-    date_created = db.Column(db.DateTime, default=datetime.datetime.now)
-    created_by = db.Column(db.String(300), default="api")
-    date_updated = db.Column(db.DateTime, default=datetime.datetime.now)
-    updated_by = db.Column(db.String(300), default="api")
+    samples = db.relationship('Sample', backref='sample_baitset', lazy='joined')
 
 
 class AppLog(db.Model):

@@ -60,14 +60,12 @@ const Home = (props) => {
       {fetchingSearchResults ? (
         <Spinner />
       ) : (
-        gridData && (
           <DataGrid
             gridData={gridData}
             colHeaders={colHeaders}
             colDefs={colDefs}
             settings={settings}
           />
-        )
       )}
     </div>
   );

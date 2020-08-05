@@ -18,7 +18,7 @@ from flask_jwt_extended import (
 )
 from flask_migrate import Migrate
 from flask import Flask
-from dbmodels.dbmodels import db, Sample, Patient, Assay, Data, AppLog
+from dbmodels.dbmodels import db, Sample, Patient, Assay, Baitset, AppLog
 import appconfigs.user_view_configs as gridconfigs
 from utils.utils import get_user_title, get_user_group, get_user_fullname, get_crdb_connection
 
@@ -64,7 +64,7 @@ elif ENV == 'local':
 
 # print(PORT)
 # print(LIMS_API_ROOT)
-# print(app.config['SQLALCHEMY_DATABASE_URI'])
+print(app.config['SQLALCHEMY_DATABASE_URI'])
 AUTH_LDAP_URL = config_options['auth_ldap_url']
 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 app.config['SECRET_KEY'] = 'the quick brown fox jumps over the lazy dog'

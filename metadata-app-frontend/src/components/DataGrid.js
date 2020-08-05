@@ -61,7 +61,6 @@ const DataGrid = (props) => {
     user && user.data && user.data.access_token ? user.data.role : null; //get user role.
   const accessToken =
     user && user.data && user.data.access_token ? user.data.access_token : null; //get access token for server requests.
-
   const dispatchSave = useDispatch(); //initialize variable to dispatch action to save edited data rows.
   console.log(settings);
   // this is the method to set the grid height equivalent to 50% of the browser window size.
@@ -142,7 +141,6 @@ const DataGrid = (props) => {
       <Paper className={classes.paper}>
         <div className={classes.filter}>
           {/*Text field above the grid to filter grid data based on text field value. */}
-          {gridData.length > 0 && (
             <TextField
               className={classes.filter}
               id="filter-data"
@@ -152,10 +150,9 @@ const DataGrid = (props) => {
               variant="outlined"
               onChange={(event) => filterResults(event)}
             />
-          )}
           {/*For Admin roles, a button to save changes made to data in grid. 
           The button is enabled after edits are made in the grid. And disabled after changes are saved.*/}
-          {gridData.length > 0 && userRole && userRole === 'admin' && (
+          {userRole && userRole === 'admin' && (
             <Button
               className={classes.button}
               color="primary"
@@ -169,17 +166,13 @@ const DataGrid = (props) => {
             </Button>
           )}
           {/*Text showing the number of results returned by search */}
-          <Typography>Total Results: {gridData.length}</Typography>
-
-          {gridData.length > 0 && (
-            <UserViewConfigDialog
+          <Typography>Total Results: {gridData && gridData.length}</Typography>
+          <UserViewConfigDialog
               columnNames={colHeaders}
               columnsToHide={columnsToHide}
               handleUserConfigChange={handleUserConfigChange}
-            />
-          )}
-        </div>
-        {gridData.length > 0 && (
+          />
+          </div>
           <div className={classes.handsontable}>
             <HotTable
               className="handsontable"
@@ -198,9 +191,8 @@ const DataGrid = (props) => {
               currentColClassName="currentCol"
             />
           </div>
-        )}
       </Paper>
-    </div>
+      </div>
   );
 };
 DataGrid.propTypes = {

@@ -2,7 +2,7 @@ import re
 import traceback
 from app import *
 from dbmodels.dbmodels import UserViewConfig
-from utils.utils import get_column_configs, get_sample_objects, get_fastq_data, s, add_to_logs, add_error_to_logs, \
+from utils.utils import get_column_configs, get_sample_objects, s, add_to_logs, add_error_to_logs, \
     add_error_to_db_logs
 
 
@@ -22,10 +22,14 @@ def get_lims_recipes():
     Method to get recipe list from LIMS to populate recipe selection field on front end.
     :return
     """
-    r = s.get(LIMS_API_ROOT + "/LimsRest/getPickListValues?list=Metadatadb CMO Recipes",
-              auth=(USER, PASSW), verify=False)
-    data = r.content.decode("utf-8", "strict")
-    return json.loads(data)
+    try:
+        recipes = db.session.query(Assay.recipe).distinct().all()
+        print("returning distinct recipes", recipes)
+        LOG.info("returning distinct recipes: {}".format(recipes))
+        return recipes
+    except Exception:
+        LOG.error("Error while reading distinct recipes form db table 'Assay':\n{}".format(traceback.print_exc()))
+        return []
 
 
 def get_ldap_connection():
@@ -194,7 +198,7 @@ def get_metadata():
     try:
         # check if user has passed timestamp value in parameter if present then grab that value
         timestamp = None
-        projectId = None
+        project_id = request.args.get("projectid")
         if request.args.get('timestamp') is not None:
             timestamp = request.args.get('timestamp')
         else:
@@ -203,7 +207,13 @@ def get_metadata():
                 days=1.1)).timetuple()) * 1000
         # query LimsRest endpoint
         print(timestamp)
-        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestampStart=" + str(int(timestamp)), auth=(USER, PASSW), verify=False)
+        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(timestamp), auth=(USER, PASSW),
+                  verify=False)
+        if project_id:
+            r = s.get(
+                LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(timestamp) + "&projectId=" + project_id,
+                auth=(USER, PASSW), verify=False)
+        print(r.url)
         data = r.content.decode("utf-8", "strict")
 
         # to record how many new Sample records were added to the database.
@@ -311,7 +321,7 @@ def save_to_db(data):
                     tumor_type=item.get("tumorType"),
                     tissue_location=item.get("tissueLocation"),
                     ancestor_sample=item.get("ancestorSample"),
-                    sample_status=item.get("sampleStatus"),
+                    #sample_status=item.get("sampleStatus"),
                     lab_head=item.get("principalInvestigator"),
                     do_not_use=item.get("doNotUse"),
                 )
@@ -328,11 +338,12 @@ def save_to_db(data):
                     cmo_patient_id = item.get("cmoPatientId")
                     if not cmo_patient_id:
                         # if cmo_patient_id is not present in data then replace it with dmp_id returned by CRDB. dmp_id is DMP_PATIENTID.
-                        cmo_patient_id = dmp_id
+                        cmo_patient_id = dmp_id if dmp_id else ""
                         # check if Patient record exists
                     patient_rec = Patient.query.filter_by(mrn=mrn).first()
                     if not patient_rec:
                         # create new Patient record
+                        print("mrn {}, dmpid {}".format(mrn, dmp_id))
                         new_patient_record = Patient(
                             mrn=mrn,
                             cmo_patient_id=cmo_patient_id,
@@ -350,34 +361,44 @@ def save_to_db(data):
                     else:
                         new_sample_record.patient = patient_rec
                         db.session.commit()
+
                 recipe = item.get("recipe")
+                assay = Assay.query.filter_by(recipe=recipe).first()
                 # if recipe value is present on data create new Assay record if required.
-                if recipe:
-                    new_assay_record = Assay(
-                        id_sample=igo_id,
-                        recipe=recipe,
-                        bait_set=item.get("baitset"),
-                        sample=new_sample_record
-                    )
-                    db.session.add(new_assay_record)
-                    db.session.commit()
-                    add_to_logs("Added new Sample record with  ID: {}".format(new_assay_record.id), "api")
-                # if recipe value is present on data create new Assay record if required.
-                fastq_data = get_fastq_data(new_sample_record.igo_id)
-                if fastq_data:
-                    new_sample_fastq_data = Data(
-                        id_sample=new_sample_record.id,
-                        fastq_path=get_fastq_data(new_sample_record.igo_id)
-                    )
-                    db.session.add(new_sample_fastq_data)
-                    db.session.commit()
-                    add_to_logs("Added new Data record with ID: {}".format(new_sample_fastq_data.id), "api")
-            # If sample record with igo_id already exists update Sample record and related Records.
+                if recipe != "":
+                    if not assay:
+                        new_assay_record = Assay(
+                            recipe=recipe,
+                        )
+                        new_sample_record.sample_assay = new_assay_record
+                        db.session.commit()
+                        add_to_logs("Added new Assay record with  ID: {}".format(new_assay_record.id), "api")
+                    else:
+                        new_sample_record.sample_assay = assay
+                        db.session.commit()
+                        add_to_logs("Added new Sample record with  ID: {}".format(new_sample_record.id), "api")
+
+                baits = item.get("baitset")
+                print("baitset:", baits)
+                if baits != "":
+                    baitset = Baitset.query.filter_by(bait_set=baits).first()
+                    # if baitset value is present on data create new Assay record if required.
+                    if not baitset and baits:
+                        new_baitset_record = Baitset(
+                            bait_set=baits,
+                        )
+                        new_sample_record.sample_baitset = new_baitset_record
+                        db.session.commit()
+                        add_to_logs("Added new Baitset record with  ID: {}".format(new_baitset_record.id), "api")
+                    else:
+                        new_sample_record.sample_baitset = baitset
+                        db.session.commit()
+                        add_to_logs("Added new Sample record with  ID: {}".format(new_sample_record.id), "api")
             elif sample_record:
                 update_record(sample_record, item, connection)
         connection.close()
         return new_record_ids  # return list of new Sample record ids created and saved to db
-    except Exception as e:
+    except Exception:
         print(traceback.print_exc())
         add_error_to_logs("Error: while saving new records to db: {}".format(traceback.print_exc()), "api")
 
@@ -404,7 +425,7 @@ def update_record(sample_record, item, connection):
             sample_record.tumor_type = item.get("tumorType")
             sample_record.tissue_location = item.get("tissueLocation")
             sample_record.ancestor_sample = item.get("ancestorSample")
-            sample_record.sample_status = item.get("sampleStatus")
+            #sample_record.sample_status = item.get("sampleStatus")
             sample_record.date_updated = datetime.datetime.now()
             sample_record.updated_by = "api"
             db.session.commit()
@@ -416,13 +437,13 @@ def update_record(sample_record, item, connection):
                 if item.get("cmoPatientId"):
                     patient_record.cmo_patient_id = item.get("cmoPatientId")
                 elif dmp_id:
-                    patient_record.cmo_patient_id = dmp_id
+                    patient_record.cmo_patient_id = dmp_id if dmp_id else ""
                 patient_record.cmo_sample_id = item.get("cmoSampleId")
                 patient_record.dmp_id = dmp_id
                 patient_record.date_updated = datetime.datetime.now()
                 patient_record.updated_by = "api"
                 db.session.commit()
-                add_to_logs("Updated Patient record with ID: {}".format(patient_record.id),"api")
+                add_to_logs("Updated Patient record with ID: {}".format(patient_record.id), "api")
 
             else:
                 new_patient_record = Patient(
@@ -436,42 +457,45 @@ def update_record(sample_record, item, connection):
                 db.session.commit()
                 add_to_logs("Added new Patient record with ID: {}".format(new_patient_record.id), "api")
 
-        assay_record = Assay.query.filter_by(id_sample=sample_record.id).first()
-        if assay_record:
-            assay_record.recipe = item.get("recipe")
-            assay_record.bait_set = item.get("baitset")
-            assay_record.date_updated = datetime.datetime.now()
-            assay_record.updated_by = "api"
-            db.session.commit()
-            add_to_logs("Updated Assay record with ID: {}".format(assay_record.id), "api")
-        else:
-            new_assay_record = Assay(
-                recipe=item.get("recipe"),
-                bait_set=item.get("baitset"),
-                sample=sample_record
-            )
-            db.session.add(new_assay_record)
-            db.session.commit()
-            add_to_logs("Created new Assay record with ID: {}".format(new_assay_record.id), "api")
-        sample_fastq_data = Data.query.filter_by(id_sample=sample_record.id).first()
-        if sample_fastq_data:
-            sample_fastq_data.fastq_path = get_fastq_data(sample_record.igo_id)
-            db.session.commit()
-            add_to_logs("Updated Data record with ID: {}".format(sample_fastq_data.id), "api")
-        else:
-            fastq_data = get_fastq_data(sample_record.igo_id)
-            if fastq_data:
-                new_sample_fastq_data = Data(
-                    id_sample=sample_record.id,
-                    fastq_path=get_fastq_data(sample_record.igo_id)
-                )
-                db.session.add(new_sample_fastq_data)
+        # update the assay record
+        #check if sample assay record exists.
+        assay_record = sample_record.sample_assay
+        # if assay recipe and updated data recipe match then skip
+        print("item recipe", item.get("recipe"), "assay_recipe", item.get("recipe"))
+        if assay_record and assay_record.recipe == item.get("recipe"):
+            pass
+        # if assay recipe and updated recipe does not match then it needs to be updated
+        if assay_record and assay_record.recipe != item.get("recipe"):
+            # if updated data recipe exist, then update it on sample
+            assay_record_new_recipe = Assay.query.filter(recipe=item.get("recipe"))
+            if assay_record_new_recipe:
+                sample_record.sample_assay = assay_record_new_recipe
                 db.session.commit()
-                add_to_logs("Added new Data record with ID: {}".format(
-                        new_sample_fastq_data.id), "api")
+                add_to_logs("Updated Assay for Sample with ID: {}".format(sample_record.id), "api")
+            # if updated data recipe does not exist in db, then created new assay and update on sampif not assay_record_new_recipe:
+                new_assay_record = Assay(
+                    recipe=item.get("recipe"),
+                    sample=sample_record
+                )
+                sample_record.sample_assay = new_assay_record
+                db.session.commit()
+                add_to_logs("Created new Assay record with ID: {}".format(new_assay_record.id), "api")
+        # update the Baitset record
+        # check if sample Baitset record exists.
+        baits = item.get("baits")
+        baitset = sample_record.sample_baitset
+        # if baitset value is not present on Sample, create new Baitset record and add to Sample.
+        if not baitset:
+            new_baitset_record = Baitset(
+                bait_set=baits,
+            )
+            sample_record.sample_baitset = new_baitset_record
+            db.session.commit()
+            add_to_logs("Updated Sample with ID {}, Added new Baitset record with  ID: {}".format(sample_record.id, new_baitset_record.id), "api")
 
-    except Exception as e:
-        message = "Error: while adding new records to db: {}".format(traceback.print_exc())
+    except Exception:
+        message = "Error: while updating Sample records: {}".format(traceback.print_exc())
+        print(message)
         add_error_to_logs(message, "api")
 
 
@@ -492,7 +516,7 @@ def search():
             user_role = search_data.get("user_role")
             current_user = get_jwt_identity()
             col_headers, column_defs, settings = get_column_configs(user_role, current_user)
-            print (settings)
+            print(settings)
             # log search event in AppLog table.
             add_to_logs("User data search using parameters: {}.".format(search_data), user=current_user)
             # create empty response object.
@@ -509,14 +533,15 @@ def search():
                 search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
                 db_results = db.session.query(Patient) \
                     .outerjoin(Sample, Patient.mrn == Sample.mrn) \
-                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .outerjoin(Assay, Sample.assay == Assay.id) \
+                    .outerjoin(Baitset, Sample.baitset == Baitset.id) \
                     .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
                                  Sample.sample_type,
                                  Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
                                  Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
                                  Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
-                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Sample.mrn.in_(search_keywords)).all()
                 sample_objects = get_sample_objects(db_results, **kwargs)
                 response = make_response(jsonify(
@@ -527,17 +552,18 @@ def search():
 
             ## search for tumor type with exact match for search_keywords.
             elif search_keywords and search_type == "tumor type" and exact_match:
-                search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                search_keywords = [x.strip() for x in re.split(r'[,\n]', search_keywords)]
                 db_results = db.session.query(Sample) \
                     .outerjoin(Patient, Patient.mrn == Sample.mrn) \
-                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .outerjoin(Assay, Sample.assay == Assay.id) \
+                    .outerjoin(Baitset, Sample.baitset == Baitset.id) \
                     .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
                                  Sample.sample_type,
                                  Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
                                  Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
                                  Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
-                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Sample.parent_tumor_type.in_(search_keywords)).all()
                 sample_objects = get_sample_objects(db_results, **kwargs)
                 response = make_response(jsonify(
@@ -548,18 +574,21 @@ def search():
 
             ## search for tumor type that is like %search_keywords%.
             elif search_keywords and search_type == "tumor type" and not exact_match:
-                search_keywords = ["%{}%".format(x.strip()) for x in re.split(r'[,\s\n]\s*', search_keywords)]
+                search_keywords = ["%{}%".format(x.strip()) for x in re.split(r'[,\n]', search_keywords)]
+                print(search_keywords)
                 db_results = db.session.query(Sample) \
                     .outerjoin(Patient, Patient.mrn == Sample.mrn) \
-                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .outerjoin(Assay, Sample.assay == Assay.id) \
+                    .outerjoin(Baitset, Sample.baitset == Baitset.id) \
                     .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
                                  Sample.sample_type,
                                  Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
                                  Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
                                  Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
-                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
-                    .filter(Sample.parent_tumor_type.like(search_keywords)).all()
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
+                    .filter(Sample.parent_tumor_type.like(search_keywords[0])).all()
+
                 sample_objects = get_sample_objects(db_results, **kwargs)
                 # apply additional filtering like has_data and is_published
                 response = make_response(jsonify(
@@ -573,14 +602,15 @@ def search():
                 search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
                 db_results = db.session.query(Patient) \
                     .outerjoin(Sample, Patient.mrn == Sample.mrn) \
-                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .outerjoin(Assay, Sample.assay == Assay.id) \
+                    .outerjoin(Baitset, Sample.baitset == Baitset.id) \
                     .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
                                  Sample.sample_type,
                                  Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
                                  Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
                                  Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
-                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Patient.cmo_patient_id.in_(search_keywords)).all()
                 # apply additional filtering like has_data and is_published
                 sample_objects = get_sample_objects(db_results, **kwargs)
@@ -594,14 +624,15 @@ def search():
                 search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
                 db_results = db.session.query(Sample) \
                     .outerjoin(Patient, Patient.mrn == Sample.mrn) \
-                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .outerjoin(Assay, Sample.assay == Assay.id) \
+                    .outerjoin(Baitset, Sample.baitset == Baitset.id) \
                     .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
                                  Sample.sample_type,
                                  Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
                                  Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
                                  Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
-                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Sample.igo_id.in_(search_keywords)).all()
                 # apply additional filtering like has_data and is_published
                 sample_objects = get_sample_objects(db_results, **kwargs)
@@ -616,14 +647,15 @@ def search():
                 search_keywords = [x.strip() for x in re.split(r'[,\s\n]\s*', search_keywords)]
                 db_results = db.session.query(Patient) \
                     .outerjoin(Sample, Patient.mrn == Sample.mrn) \
-                    .outerjoin(Assay, Sample.id == Assay.id_sample) \
+                    .outerjoin(Assay, Sample.assay == Assay.id) \
+                    .outerjoin(Baitset, Sample.baitset == Baitset.id) \
                     .add_columns(Sample.id, Sample.mrn, Sample.igo_id, Sample.investigator_sample_id,
                                  Sample.sample_type,
                                  Sample.species, Patient.cmo_patient_id, Patient.cmo_sample_id, Patient.dmp_id,
                                  Sample.preservation, Sample.tumor_normal, Sample.tissue_source, Sample.sample_origin,
                                  Sample.specimen_type, Sample.sex, Sample.parent_tumor_type, Sample.tumor_type,
-                                 Sample.tissue_location, Sample.ancestor_sample, Sample.sample_status, Sample.lab_head,
-                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Assay.bait_set) \
+                                 Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
+                                 Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Patient.cmo_sample_id.in_(search_keywords)).all()
                 # apply additional filtering like has_data and is_published
                 sample_objects = get_sample_objects(db_results, **kwargs)
@@ -635,14 +667,15 @@ def search():
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 
-    except Exception as e:
-        print(traceback.print_exc(e))
-        add_error_to_logs("Error: while serving search query: {}".format(traceback.print_exc()), "api")
+    except Exception:
+        print(traceback.print_exc())
+        message = "Error while executing search query.: {}".format(traceback.print_exc())
+        add_error_to_logs(message, "api")
         response = make_response(
             jsonify(success=False,
                     data=None,
                     error=True,
-                    message="Search Error: {}".format(repr(e))
+                    message="Error while executing search query."
                     ),
             500, None)
         response.headers.add('Access-Control-Allow-Origin', '*')
@@ -678,7 +711,7 @@ def save_user_view_configs():
             response.headers.add('Access-Control-Allow-Origin', '*')
             add_to_logs("Successfully saved data.", username)
             return response
-    except Exception as e:
+    except Exception:
         message = "while updating data: {}".format(traceback.print_exc())
         add_error_to_logs(message, "api")
         response = make_response(
@@ -732,7 +765,7 @@ def save_view_configs():
                     response.headers.add('Access-Control-Allow-Origin', '*')
                     return response
 
-    except Exception as e:
+    except Exception:
         message = "Error while updating user view configs: {}".format(traceback.print_exc())
         add_error_to_logs(message, "api")
         response = make_response(
