@@ -190,6 +190,7 @@ const DataGrid = (props) => {
               currentRowClassName="currentRow"
               currentColClassName="currentCol"
             />
+          
           </div>
       </Paper>
       </div>

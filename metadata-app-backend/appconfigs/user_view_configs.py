@@ -327,18 +327,21 @@ adminColumns = [
         'readOnly': True
     }
 ]
+
+
+
 settings = {
     'columnSorting': True,
     'filters': True,
     'autoColumnSize': True,
     'width': '100%',
-    'height': 500,
     'colWidths': [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,
                   200, 200, 200, 200, 200, 200, 200, 200],
     'manualColumnResize': True,
     'rowHeaders': True,
     'colHeaders': True,
     'search': True,
+    'height': 500,
     'dropdownMenu': ['filter_by_condition', 'filter_action_bar'],
     'hiddenColumns': {
         'indicators': True,

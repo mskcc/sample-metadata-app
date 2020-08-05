@@ -59,7 +59,7 @@ const Home = (props) => {
       {savingResults ? <Spinner /> : null}
       {fetchingSearchResults ? (
         <Spinner />
-      ) : (
+      ) : (gridData && 
           <DataGrid
             gridData={gridData}
             colHeaders={colHeaders}
