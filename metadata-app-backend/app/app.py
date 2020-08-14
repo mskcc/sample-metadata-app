@@ -1,9 +1,10 @@
 import re
 import traceback
+
 from app import *
 from dbmodels.dbmodels import UserViewConfig
 from utils.utils import get_column_configs, get_sample_objects, s, add_to_logs, add_error_to_logs, \
-    add_error_to_db_logs
+    add_error_to_db_logs, create_cache_key
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -198,24 +199,26 @@ def get_metadata():
     try:
         # check if user has passed timestamp value in parameter if present then grab that value
         timestamp = None
-        project_id = request.args.get("projectid")
+        project_id = request.args.get("projectId")
         if request.args.get('timestamp') is not None:
             timestamp = request.args.get('timestamp')
         else:
-            # if timestamp is not present generate one for 1.1 days in the past.
+            # if timestamp is not present generate one current time minus 1.1 days.
             timestamp = time.mktime((datetime.datetime.today() - timedelta(
                 days=1.1)).timetuple()) * 1000
-        # query LimsRest endpoint
-        print(timestamp)
-        r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(timestamp), auth=(USER, PASSW),
-                  verify=False)
-        if project_id:
+        print("timestamp: ", timestamp)
+        print("projectid: ", project_id)
+        r = None
+        if timestamp and project_id:
             r = s.get(
                 LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(timestamp) + "&projectId=" + project_id,
                 auth=(USER, PASSW), verify=False)
-        print(r.url)
+            print("LimsRest endpoint url: ", r.url)
+        else:
+            r = s.get(LIMS_API_ROOT + "/LimsRest/getSampleMetadata?timestamp=" + str(timestamp), auth=(USER, PASSW),
+                      verify=False)
+            print("LimsRest endpoint url: ", r.url)
         data = r.content.decode("utf-8", "strict")
-
         # to record how many new Sample records were added to the database.
         ids = save_to_db(data)
         add_to_logs("Added {} new records to the Metadata Database".format(ids), "api")
@@ -383,7 +386,7 @@ def save_to_db(data):
                 if baits != "":
                     baitset = Baitset.query.filter_by(bait_set=baits).first()
                     # if baitset value is present on data create new Assay record if required.
-                    if not baitset and baits:
+                    if not baitset and baits and baits != "":
                         new_baitset_record = Baitset(
                             bait_set=baits,
                         )
@@ -480,12 +483,15 @@ def update_record(sample_record, item, connection):
                 sample_record.sample_assay = new_assay_record
                 db.session.commit()
                 add_to_logs("Created new Assay record with ID: {}".format(new_assay_record.id), "api")
+
+        baits = item.get("baitset")
+
         # update the Baitset record
         # check if sample Baitset record exists.
-        baits = item.get("baits")
         baitset = sample_record.sample_baitset
+
         # if baitset value is not present on Sample, create new Baitset record and add to Sample.
-        if not baitset:
+        if not baitset and baits and baits != "":
             new_baitset_record = Baitset(
                 bait_set=baits,
             )
@@ -493,6 +499,22 @@ def update_record(sample_record, item, connection):
             db.session.commit()
             add_to_logs("Updated Sample with ID {}, Added new Baitset record with  ID: {}".format(sample_record.id, new_baitset_record.id), "api")
 
+        # if baitset value in lims changed since last import, check if there is Baitset record with new value in db,
+        # and update sample. If there are no Baitset records with new value in db, then create new Baitset record and
+        # update sample record.
+        if baitset and baits and baits != "" and baits != baitset.bait_set:
+            matching_baitset_rec = Baitset.query.filter_by(bait_set=baits).first()
+            if matching_baitset_rec:
+                sample_record.sample_baitset = matching_baitset_rec
+            else:
+                new_baitset_record = Baitset(
+                    bait_set=baits,
+                )
+                sample_record.sample_baitset = new_baitset_record
+                db.session.commit()
+                add_to_logs("Updated Sample with ID {}, Updated Sample Baitset  record with ID: {}".format(sample_record.id,
+                                                                                                      baitset.id),
+                            "api")
     except Exception:
         message = "Error: while updating Sample records: {}".format(traceback.print_exc())
         print(message)
@@ -512,11 +534,16 @@ def search():
             exact_match = search_data.get("exact_match")
             application = search_data.get("application")
             has_data = search_data.get("has_data")
-            # is_published = search_data.get("is_published")  //in progress. Need source to validate published status.
             user_role = search_data.get("user_role")
             current_user = get_jwt_identity()
             col_headers, column_defs, settings = get_column_configs(user_role, current_user)
             print(settings)
+            cache_key = create_cache_key(search_keywords, search_type, exact_match, application, has_data)
+            cached_response = cache.get(cache_key)
+            print("cached response", cached_response)
+            if cached_response:
+                add_to_logs("Returning response from cache:\n{}".format(cached_response), "api")
+                return cached_response
             # log search event in AppLog table.
             add_to_logs("User data search using parameters: {}.".format(search_data), user=current_user)
             # create empty response object.
@@ -565,6 +592,7 @@ def search():
                                  Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
                                  Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Sample.parent_tumor_type.in_(search_keywords)).all()
+                print("db search complete. returned {} objects".format(len(db_results)))
                 sample_objects = get_sample_objects(db_results, **kwargs)
                 response = make_response(jsonify(
                     data=(json.dumps([r.__dict__ for r in sample_objects], sort_keys=True,
@@ -588,7 +616,7 @@ def search():
                                  Sample.tissue_location, Sample.ancestor_sample, Sample.lab_head,
                                  Sample.data_access, Sample.do_not_use, Assay.recipe, Baitset.bait_set) \
                     .filter(Sample.parent_tumor_type.like(search_keywords[0])).all()
-
+                print("db search complete. returned {} objects".format(len(db_results)))
                 sample_objects = get_sample_objects(db_results, **kwargs)
                 # apply additional filtering like has_data and is_published
                 response = make_response(jsonify(
@@ -665,6 +693,9 @@ def search():
                                      separators=(',', ': '))), col_headers=col_headers, column_defs=column_defs,
                     settings=settings, success=True, error=False), 200, None)
             response.headers.add('Access-Control-Allow-Origin', '*')
+            # cache response
+            add_to_logs("Saving response data to cache.\n{}".format(response), "api")
+            cache.set(cache_key, response, 28800)
             return response
 
     except Exception:

@@ -10,6 +10,7 @@ import ldap
 import yaml
 from flask_cors import CORS
 from flask import Flask
+from flask_caching import Cache
 from flask import request, make_response, jsonify, send_from_directory
 from flask_jwt_extended import (
     JWTManager, jwt_required, get_jwt_identity,
@@ -21,8 +22,9 @@ from flask import Flask
 from dbmodels.dbmodels import db, Sample, Patient, Assay, Baitset, AppLog
 import appconfigs.user_view_configs as gridconfigs
 from utils.utils import get_user_title, get_user_group, get_user_fullname, get_crdb_connection
-
 app = Flask(__name__)
+cache = Cache(config={"CACHE_TYPE": "simple"})
+cache.init_app(app)
 
 ###################################### register blueprints ##########################################
 from outbound_api.outbound_api import outbound_api
@@ -86,7 +88,7 @@ CORS(app)
 
 # ADMIN_GROUPS = ['AHDHD'] # add another admin group from PM's when available
 ADMIN_GROUPS = ['zzPDL_SKI_IGO_DATA', 'GRP_SKI_CMO_WESRecapture']
-CLINICAL_GROUPS = ['clinical_group_update_when_available']
+CLINICAL_GROUPS = ['GRP_SKI_CMO_WESRecapture_Clinical']
 
 ##################################### Logging settings ###############################################
 log_file_path = ''

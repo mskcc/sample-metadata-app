@@ -1,19 +1,20 @@
+import concurrent.futures
 import os
 import re
-import concurrent.futures
+import traceback
 import cx_Oracle
 import requests
+import urllib3
 import yaml
-import traceback
 from flask import json
 from requests.adapters import HTTPAdapter
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from urllib3 import PoolManager
 import appconfigs.user_view_configs as grid_configs
 from dbmodels.dbmodels import SampleData, UserViewConfig, AppLog
 import ssl
 from app import LOG
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../appconfigs/lims_user_config")
 config_options = yaml.safe_load(open(config, "r"))
@@ -43,7 +44,7 @@ class MyAdapter(HTTPAdapter):
 
 
 s = requests.Session()
-s.mount('https://', MyAdapter())
+s.mount('http://', MyAdapter(max_retries=5))
 
 
 def get_user_title(result):
@@ -95,7 +96,7 @@ def get_column_configs(role, username):
                     hidden_column_arr.append(int(item))
                     settings["hiddenColumns"]["columns"] = hidden_column_arr
                 print(settings)
-            #print(username, "view settings", settings)
+            # print(username, "view settings", settings)
         if role == 'clinical':
             return grid_configs.clinicalColHeaders, grid_configs.clinicalColumns, settings
         elif role == 'admin':
@@ -103,7 +104,6 @@ def get_column_configs(role, username):
         elif role == 'user':
             return grid_configs.nonClinicalColHeaders, grid_configs.nonClinicalColumns, settings
     except Exception:
-        print(traceback.print_exc())
         add_error_to_logs("Error getting column configs {}".format(traceback.print_exc()))
 
 
@@ -112,9 +112,34 @@ def get_crdb_connection(CRDB_UN, CRDB_PW, CRDB_URL):
         conn = cx_Oracle.connect(CRDB_UN, CRDB_PW, CRDB_URL)
         return conn
     except Exception:
-        print("Error connecting to CRDB {}".format(traceback.print_exc))
         add_error_to_logs("Error connecting to CRDB {}".format(traceback.print_exc()), "api")
         return None
+
+
+def get_id_without_aliquot_annotations(igo_id):
+    """
+    IGO ID's in LIMS have trailing "_+[1-9]" to annotate aliquot samples. To query fastq endpoint, we need igo id's
+    without trailing aliquot annotations. You would think that the ID's under request should not have trailing aliquot
+    annotations, well you are wrong, check for "05457_I_17". The first sample under request in LIMS for this ID is
+    "05457_I_17_1". Therefore, it is important to the sanity check and if there are such cases this method is to handle
+    them and return usable IGO ID for the fastq endpoint.
+    :return id
+    """
+    try:
+        pattern = re.compile("^[0-9]+_[0-9]+.*$")  # sample id without alphabets
+        pattern2 = re.compile("^[0-9]+_[A-Z]+_[0-9]+.*$")  # sample id without alphabets
+        id_without_letters = re.findall(pattern, igo_id)
+        id_with_letters = re.findall(pattern2, igo_id)
+        if id_without_letters:
+            return "_".join(id_without_letters[0].split("_")[:2])
+        if id_with_letters:
+            return "_".join(id_with_letters[0].split("_")[:3])
+        return igo_id
+    except Exception:
+        err_msg = "error while extrating IGO ID without aliquot annotations for id {}:\n{}".format(igo_id,
+                                                                                                   traceback.print_exc())
+        add_error_to_logs(err_msg)
+        return igo_id
 
 
 def get_fastq_data(igo_id):
@@ -122,11 +147,12 @@ def get_fastq_data(igo_id):
     Method to get Fastq file path for Sample using IGO ID.
     :return
     """
-    url=None
+    url = None
+    sanitized_id = get_id_without_aliquot_annotations(igo_id)
     try:
-        if not igo_id:
+        if not sanitized_id:
             return None
-        url = "{}ngs-stats/rundone/fastqsbyigoid/{}".format(DELPHI_URL, igo_id)
+        url = "{}ngs-stats/rundone/fastqsbyigoid/{}".format(DELPHI_URL, sanitized_id)
         request = requests.get(url)
         data = json.loads(request.content.decode("utf-8", "strict"))
         fastq_data = []
@@ -134,7 +160,6 @@ def get_fastq_data(igo_id):
             fastq_data.append(item.get("fastq"))
         return ",".join(fastq_data)
     except Exception:
-        print("Error querying delphi fastq endpoint {}: ".format(url), traceback.print_exc())
         message = "Error querying delphi fastq endpoint {} , {}: ".format(url, traceback.print_exc())
         add_error_to_logs(message, "api")
         return None
@@ -151,10 +176,12 @@ def get_sample_status(igo_id):
         data = r.content.decode("utf-8", "strict")
         return data
     except Exception:
-        err_message = "Error querying /LimsRest/getSampleStatus?igoId={} endpoint: ".format(igo_id), traceback.print_exc()
+        err_message = "Error querying /LimsRest/getSampleStatus?igoId={} endpoint: ".format(
+            igo_id), traceback.print_exc()
         add_error_to_logs(err_message, "api")
         print(err_message)
         return None
+
 
 def create_sample_object(db_sample_data):
     """
@@ -162,7 +189,9 @@ def create_sample_object(db_sample_data):
     :return
     """
     status = get_sample_status(db_sample_data.igo_id)
-    fastq = get_fastq_data(db_sample_data.igo_id)
+    fastq = None
+    if status and "data qc" in status:
+        fastq = get_fastq_data(db_sample_data.igo_id)
     sample_object = SampleData(
         id=db_sample_data.id,
         mrn=db_sample_data.mrn,
@@ -205,7 +234,8 @@ def get_sample_objects(db_results, **kwargs):
         sample_objects.extend(list(results))
     if "application" in kwargs and kwargs.get("application") != 'None':
         print(kwargs.get("application"))
-        sample_objects = list(filter(lambda x: x.recipe.lower() == kwargs.get("application")[0].lower(), sample_objects))
+        sample_objects = list(
+            filter(lambda x: x.recipe.lower() == kwargs.get("application")[0].lower(), sample_objects))
     if "has_data" in kwargs:
         sample_objects = list(filter(lambda x: x.fastq_data, sample_objects))
     return sample_objects
@@ -241,3 +271,11 @@ def add_error_to_db_logs(message, user):
     """
     print(message, "User: {}".format(user))
     AppLog.error(message=message, user=user)
+
+
+def create_cache_key(*args):
+    key_items = []
+    for item in args:
+        key_items.append(str(item).replace(" ", "_"))
+    return "_".join(key_items)
+

@@ -7,7 +7,23 @@ class Spinner extends React.Component {
 render(){
   return (
     <Grid container justify="center" spacing={3}>
+      <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="flex-end"
+          >
       <CircularProgress />
+      </Grid>
+
+      <Grid
+            container
+            direction="row"
+            justify="center"
+            alignItems="flex-end"
+          >
+        Fetching large dataset, please be patient.
+      </Grid>
     </Grid>
   );
 }
