@@ -17,4 +17,4 @@ Run this file to start the application when running locally. In production we wi
 """
 # dev, this is how python runs the app
 if __name__ == "__main__":
-    app.run(debug=DEBUG, port=5000, threaded=True)
+    app.run(debug=DEBUG, threaded=True)

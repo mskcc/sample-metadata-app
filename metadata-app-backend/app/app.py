@@ -1,10 +1,12 @@
 import re
 import traceback
 
+# import uwsgi as uwsgi
+
 from app import *
 from dbmodels.dbmodels import UserViewConfig
 from utils.utils import get_column_configs, get_sample_objects, s, add_to_logs, add_error_to_logs, \
-    add_error_to_db_logs, create_cache_key
+    add_error_to_db_logs, create_cache_key, cache_data, get_cached_data
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -539,7 +541,7 @@ def search():
             col_headers, column_defs, settings = get_column_configs(user_role, current_user)
             print(settings)
             cache_key = create_cache_key(search_keywords, search_type, exact_match, application, has_data)
-            cached_response = cache.get(cache_key)
+            cached_response = get_cached_data(cache_key)
             print("cached response", cached_response)
             if cached_response:
                 add_to_logs("Returning response from cache:\n{}".format(cached_response), "api")
@@ -695,7 +697,7 @@ def search():
             response.headers.add('Access-Control-Allow-Origin', '*')
             # cache response
             add_to_logs("Saving response data to cache.\n{}".format(response), "api")
-            cache.set(cache_key, response, 28800)
+            cache.set
             return response
 
     except Exception:

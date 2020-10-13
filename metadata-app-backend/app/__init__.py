@@ -22,9 +22,8 @@ from flask import Flask
 from dbmodels.dbmodels import db, Sample, Patient, Assay, Baitset, AppLog
 import appconfigs.user_view_configs as gridconfigs
 from utils.utils import get_user_title, get_user_group, get_user_fullname, get_crdb_connection
+from flask_caching import Cache
 app = Flask(__name__)
-cache = Cache(config={"CACHE_TYPE": "simple"})
-cache.init_app(app)
 
 ###################################### register blueprints ##########################################
 from outbound_api.outbound_api import outbound_api
@@ -81,7 +80,13 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
 jwt = JWTManager(app)
 
 blacklist = set()
+
+###################################### CACHING SETTINGS #########################################################cache = Cache(app, config=config_options['cache_config_prod'])
+
+cache = Cache(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': '../cache'})
+
 ###################################### CORS #########################################################
+
 CORS(app)
 
 #################################### APP CONSTANTS ###################################################

@@ -279,3 +279,17 @@ def create_cache_key(*args):
         key_items.append(str(item).replace(" ", "_"))
     return "_".join(key_items)
 
+
+def get_cached_data(key):
+    # TODO - Do a json-dumps so that any data-type can be cached
+    if uwsgi.cache_exists(key, CACHE_NAME):
+        data = uwsgi.cache_get(key, CACHE_NAME)
+        AppLog.info("Using cached data for %s" % key, "api")
+        return data
+    AppLog.info("No data cached for %s" % key, "api")
+    return None
+
+
+def cache_data(key, content, time):
+    AppLog("Caching %s for %d seconds" % (key, time), "api")
+    uwsgi.cache_update(key, content, time, CACHE_NAME)
